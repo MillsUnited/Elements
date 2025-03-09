@@ -14,7 +14,7 @@ public class AbilityManager {
     private final String itemName;
     private final String leftClickAbilityName;
     private final String rightClickAbilityName;
-    private final Consumer<Player> inventoryAbility;
+//    private final Consumer<Player> inventoryAbility;
     private final Consumer<Player> leftClickAbility;
     private final Consumer<Player> rightClickAbility;
     private final long leftClickCooldown;
@@ -24,12 +24,12 @@ public class AbilityManager {
     private final Map<UUID, Long> lastRightClickUse = new HashMap<>();
 
     public AbilityManager(ItemStack item, String itemName,
-                      Consumer<Player> inventoryAbility,
+//                      Consumer<Player> inventoryAbility,
                       String leftClickAbilityName, Consumer<Player> leftClickAbility, long leftClickCooldown,
                       String rightClickAbilityName, Consumer<Player> rightClickAbility, long rightClickCooldown) {
         this.item = item;
         this.itemName = itemName;
-        this.inventoryAbility = inventoryAbility;
+//        this.inventoryAbility = inventoryAbility;
         this.leftClickAbilityName = leftClickAbilityName;
         this.leftClickAbility = leftClickAbility;
         this.leftClickCooldown = leftClickCooldown;
@@ -42,11 +42,11 @@ public class AbilityManager {
         return item;
     }
 
-    public void executeInventoryAbility(Player player) {
-        if (inventoryAbility != null) {
-            inventoryAbility.accept(player);
-        }
-    }
+//    public void executeInventoryAbility(Player player) {
+//        if (inventoryAbility != null) {
+//            inventoryAbility.accept(player);
+//        }
+//    }
 
     public void executeLeftClickAbility(Player player) {
         if (leftClickAbility != null) {

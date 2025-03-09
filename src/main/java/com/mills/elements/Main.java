@@ -10,15 +10,16 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager();
+        getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
 
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);
+
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());
 
-        new PassiveAbilityManager(this).runTaskTimer(this, 0L, 20L);
-
         RegisterItems.registerElementalItems();
-
     }
+
 }

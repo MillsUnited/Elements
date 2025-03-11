@@ -6,7 +6,6 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -25,7 +24,6 @@ import java.util.UUID;
 
 public class PassiveAbilityManager implements Listener {
 
-    // Map to store the player's elemental items
     private static final Map<UUID, Set<ItemStack>> activeItems = new HashMap<>();
 
     private final FallDamageListener fallDamageListener;
@@ -39,7 +37,6 @@ public class PassiveAbilityManager implements Listener {
         Player player = event.getPlayer();
         Set<ItemStack> playerItems = new HashSet<>();
 
-        // Check the entire inventory on login for elemental items (excluding offhand)
         for (ItemStack item : player.getInventory().getContents()) {
             if (isElementalItem(item)) {
                 playerItems.add(item.clone());
@@ -71,57 +68,13 @@ public class PassiveAbilityManager implements Listener {
         ItemStack clickedItem = e.getCurrentItem();
         ItemStack cursorItem = e.getCursor();
 
-        // If the item is Fire and the player is in any inventory that is not their own (i.e., a chest, anvil, etc.)
+        // prevent placing item in gui
         if (isElementalItem(clickedItem) && isNotPlayersInventory(e.getInventory())) {
-            e.setCancelled(true);  // Cancel the event to prevent interaction
-            return;  // Prevent further processing
+            e.setCancelled(true);
+            return;
         }
 
-        // Handle Hotkey Movement (press 1-9 while hovering)
-        if (e.getHotbarButton() != -1) {
-            ItemStack hotbarItem = player.getInventory().getItem(e.getHotbarButton());
-
-            // Remove effect if hotbar already has an elemental item
-            if (isElementalItem(hotbarItem)) {
-                Set<ItemStack> playerItems = activeItems.get(player.getUniqueId());
-                if (playerItems != null) {
-                    playerItems.remove(hotbarItem);
-                    removeEffectIfNeeded(player, hotbarItem);
-                }
-            }
-
-            // Keep effect if moved via hotkey
-            if (isElementalItem(clickedItem)) {
-                Set<ItemStack> playerItems = activeItems.getOrDefault(player.getUniqueId(), new HashSet<>());
-                playerItems.add(clickedItem.clone());
-                activeItems.put(player.getUniqueId(), playerItems);
-                applyEffectIfNeeded(player, clickedItem);
-            }
-        }
-
-        // Handle Hotbar Swap and Move-And-Readd
-        if (e.getAction() == InventoryAction.HOTBAR_SWAP ||
-                e.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) {
-
-            ItemStack swapItem = e.getWhoClicked().getInventory().getItem(e.getHotbarButton());
-
-            if (isElementalItem(swapItem)) {
-                Set<ItemStack> playerItems = activeItems.get(player.getUniqueId());
-                if (playerItems != null) {
-                    playerItems.remove(swapItem);
-                    removeEffectIfNeeded(player, swapItem);
-                }
-            }
-
-            if (isElementalItem(clickedItem)) {
-                Set<ItemStack> playerItems = activeItems.getOrDefault(player.getUniqueId(), new HashSet<>());
-                playerItems.add(clickedItem.clone());
-                activeItems.put(player.getUniqueId(), playerItems);
-                applyEffectIfNeeded(player, clickedItem);
-            }
-        }
-
-        // Handle Normal Clicking/Moving
+        // remove effect when item is selected
         if (isElementalItem(clickedItem)) {
             Set<ItemStack> playerItems = activeItems.get(player.getUniqueId());
             if (playerItems != null && playerItems.contains(clickedItem)) {
@@ -131,14 +84,30 @@ public class PassiveAbilityManager implements Listener {
             }
         }
 
-        // Handle placing item in the hotbar (dragging it in)
-        if (isElementalItem(cursorItem)
-                && (e.getSlot() >= 0 && e.getSlot() <= 35)) {
+        // adding effect when placed item in inventory
+        if (isElementalItem(cursorItem) && (e.getSlot() >= 0 && e.getSlot() <= 35)) {
             Set<ItemStack> playerItems = activeItems.getOrDefault(player.getUniqueId(), new HashSet<>());
             playerItems.add(cursorItem.clone());
             activeItems.put(player.getUniqueId(), playerItems);
             applyEffectIfNeeded(player, cursorItem);
         }
+
+        // Handle shift-clicking to the hotbar
+        if (e.isShiftClick() && isElementalItem(clickedItem)) {
+            if (isInHotbar(clickedItem, player)) {
+                applyEffectIfNeeded(player, clickedItem);
+            }
+        }
+    }
+
+    private boolean isInHotbar(ItemStack item, Player player) {
+        for (int i = 0; i < 9; i++) {
+            ItemStack hotbarItem = player.getInventory().getItem(i);
+            if (hotbarItem != null && hotbarItem.isSimilar(item)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @EventHandler
@@ -146,17 +115,13 @@ public class PassiveAbilityManager implements Listener {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
 
-        // Check if the entity is an item frame
         if (entity instanceof ItemFrame) {
             ItemFrame itemFrame = (ItemFrame) entity;
 
-            // Check if the item frame is empty
             if (itemFrame.getItem().getType() == Material.AIR) {
                 ItemStack itemInHand = player.getInventory().getItemInMainHand();
 
-                // Check if the player is holding an elemental item
                 if (isElementalItem(itemInHand)) {
-                    // Remove the corresponding effect
                     removeEffectIfNeeded(player, itemInHand);
                 }
             }

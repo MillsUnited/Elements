@@ -6,12 +6,14 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.inventory.Inventory;
@@ -67,14 +69,14 @@ public class PassiveAbilityManager implements Listener {
         Player player = (Player) e.getWhoClicked();
         ItemStack clickedItem = e.getCurrentItem();
         ItemStack cursorItem = e.getCursor();
+        Inventory inventory = e.getInventory();
 
-        // prevent placing item in gui
         if (isElementalItem(clickedItem) && isNotPlayersInventory(e.getInventory())) {
             e.setCancelled(true);
             return;
         }
 
-        // remove effect when item is selected
+        // removing effect when selecting item
         if (isElementalItem(clickedItem)) {
             Set<ItemStack> playerItems = activeItems.get(player.getUniqueId());
             if (playerItems != null && playerItems.contains(clickedItem)) {
@@ -85,29 +87,23 @@ public class PassiveAbilityManager implements Listener {
         }
 
         // adding effect when placed item in inventory
-        if (isElementalItem(cursorItem) && (e.getSlot() >= 0 && e.getSlot() <= 35)) {
+        if (isElementalItem(cursorItem)
+                && (e.getSlot() >= 0 && e.getSlot() <= 35)) {
             Set<ItemStack> playerItems = activeItems.getOrDefault(player.getUniqueId(), new HashSet<>());
             playerItems.add(cursorItem.clone());
             activeItems.put(player.getUniqueId(), playerItems);
             applyEffectIfNeeded(player, cursorItem);
         }
 
-        // Handle shift-clicking to the hotbar
-        if (e.isShiftClick() && isElementalItem(clickedItem)) {
-            if (isInHotbar(clickedItem, player)) {
-                applyEffectIfNeeded(player, clickedItem);
+        if (e.isShiftClick()) {
+            if (isElementalItem(cursorItem)
+                    && (e.getSlot() >= 0 && e.getSlot() <= 35)) {
+                Set<ItemStack> playerItems = activeItems.getOrDefault(player.getUniqueId(), new HashSet<>());
+                playerItems.add(cursorItem.clone());
+                activeItems.put(player.getUniqueId(), playerItems);
+                applyEffectIfNeeded(player, cursorItem);
             }
         }
-    }
-
-    private boolean isInHotbar(ItemStack item, Player player) {
-        for (int i = 0; i < 9; i++) {
-            ItemStack hotbarItem = player.getInventory().getItem(i);
-            if (hotbarItem != null && hotbarItem.isSimilar(item)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @EventHandler
@@ -192,8 +188,7 @@ public class PassiveAbilityManager implements Listener {
         }
     }
 
-    // Check if the inventory is not the player's (i.e., it's another GUI like chest, anvil, etc.)
     private boolean isNotPlayersInventory(Inventory inventory) {
-        return !(inventory.getHolder() instanceof Player);  // If the inventory holder is not the player
+        return !(inventory.getHolder() instanceof Player);
     }
 }

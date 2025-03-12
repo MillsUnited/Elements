@@ -7,25 +7,22 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class FallDamageListener implements Listener {
 
-    // Store players who have fall damage disabled
-    private final Set<Player> noFallDamage = new HashSet<>();
+    private final Set<UUID> noFallDamage = new HashSet<>();
 
-    // Add a player to the list to disable fall damage
     public void addNoFallDamage(Player player) {
-        noFallDamage.add(player);
+        noFallDamage.add(player.getUniqueId());
     }
 
-    // Remove a player from the list to enable fall damage
     public void removeNoFallDamage(Player player) {
-        noFallDamage.remove(player);
+        noFallDamage.remove(player.getUniqueId());
     }
 
-    // Check if a player has fall damage disabled
     public boolean hasNoFallDamage(Player player) {
-        return noFallDamage.contains(player);
+        return noFallDamage.contains(player.getUniqueId());
     }
 
     @EventHandler
@@ -33,9 +30,8 @@ public class FallDamageListener implements Listener {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
 
-            // Cancel fall damage if the player is in the noFallDamage list
             if (noFallDamage.contains(player) && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
-                event.setCancelled(true);
+                event.setDamage(0);
             }
         }
     }

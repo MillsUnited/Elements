@@ -2,8 +2,10 @@ package com.mills.elements;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.ItemStack;
@@ -11,10 +13,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ItemDrop implements Listener {
 
@@ -36,17 +35,6 @@ public class ItemDrop implements Listener {
         Item droppedItem = e.getItemDrop();
         ItemStack itemStack = droppedItem.getItemStack();
 
-        List<ItemStack> elementalItems = Arrays.asList(
-                Items.fire(),
-                Items.ice(),
-                Items.earth(),
-                Items.sun(),
-                Items.nature(),
-                Items.shadow(),
-                Items.water(),
-                Items.wind()
-        );
-
         for (Map.Entry<ItemStack, ChatColor> entry : elementalColors.entrySet()) {
             if (isSameItem(itemStack, entry.getKey())) {
                 droppedItem.setGlowing(true);
@@ -58,6 +46,46 @@ public class ItemDrop implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onItemDropByDeath(PlayerDeathEvent e) {
+        Player player = e.getEntity();
+        List<ItemStack> droppedItems = new ArrayList<>(e.getDrops()); // This gets all the items the player drops
+
+        // Loop through all the items dropped on death
+        for (ItemStack itemStack : droppedItems) {
+            for (Map.Entry<ItemStack, ChatColor> entry : elementalColors.entrySet()) {
+                if (isSameItem(itemStack, entry.getKey())) {
+                    // Ensure the item is cloned to avoid modifying the original
+                    ItemStack itemWithGlow = itemStack.clone();
+                    ItemMeta meta = itemWithGlow.getItemMeta();
+
+                    // Set the custom name if it has one
+                    if (meta != null) {
+                        meta.setDisplayName(itemStack.getItemMeta().getDisplayName());
+                        itemWithGlow.setItemMeta(meta);
+                    }
+
+                    // Create an item entity for the dropped item
+                    Item droppedItem = player.getWorld().dropItem(player.getLocation(), itemWithGlow);
+
+                    // Apply glowing effect and custom name
+                    droppedItem.setGlowing(true);
+                    droppedItem.setCustomName(itemWithGlow.getItemMeta().getDisplayName());
+                    droppedItem.setCustomNameVisible(true);
+
+                    // Apply the glow color based on the elemental color
+                    setItemGlowColor(droppedItem, entry.getValue());
+
+                    // Remove the original item from the dropped items to avoid duplication
+                    e.getDrops().remove(itemStack);
+                    break; // No need to check other elemental types for the same item
+                }
+            }
+        }
+    }
+
+
 
     private boolean isSameItem(ItemStack item1, ItemStack item2) {
         if (item1 == null || item2 == null) return false;

@@ -11,7 +11,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         FallDamageListener fallDamageListener = new FallDamageListener();
-        PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(fallDamageListener);
+        PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(fallDamageListener, this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
 
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);

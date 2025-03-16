@@ -10,13 +10,11 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        FallDamageListener fallDamageListener = new FallDamageListener();
-        PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(fallDamageListener, this);
+        PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
 
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);
-        Bukkit.getPluginManager().registerEvents(new FallDamageListener(), this);
 
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());

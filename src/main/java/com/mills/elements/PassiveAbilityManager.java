@@ -21,11 +21,9 @@ public class PassiveAbilityManager implements Listener {
     private static final Map<UUID, Set<ItemStack>> activeItems = new HashMap<>();
     private final Set<UUID> noFallDamage = new HashSet<>();
 
-    private final FallDamageListener fallDamageListener;
     private final JavaPlugin plugin;
 
-    public PassiveAbilityManager(FallDamageListener fallDamageListener, JavaPlugin plugin) {
-        this.fallDamageListener = fallDamageListener;
+    public PassiveAbilityManager(JavaPlugin plugin) {
         this.plugin = plugin;
         startInventoryCheck();
     }
@@ -35,15 +33,27 @@ public class PassiveAbilityManager implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 UUID uuid = player.getUniqueId();
                 Set<ItemStack> currentItems = new HashSet<>();
+                boolean hasWindItem = false;
 
                 for (ItemStack item : player.getInventory().getContents()) {
                     if (item == null) continue;
 
                     if (isElementalItem(item)) {
                         currentItems.add(item);
+
+                        if (item.isSimilar(Items.wind())) {
+                            hasWindItem = true;
+                        }
+
                         // Apply effect every tick
                         applyAbility(player, item);
                     }
+                }
+
+                if (hasWindItem && !hasNoFallDamage(player)) {
+                    addNoFallDamage(player);
+                } else if (!hasWindItem && hasNoFallDamage(player)) {
+                    removeNoFallDamage(player);
                 }
 
                 activeItems.put(uuid, currentItems);
@@ -87,10 +97,6 @@ public class PassiveAbilityManager implements Listener {
         } else if (item.isSimilar(Items.ice())) {
             if (isInIceBiome(player)) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false));
-            }
-        } else if (item.isSimilar(Items.wind())) {
-            if (!hasNoFallDamage(player)) {
-                addNoFallDamage(player);
             }
         }
     }

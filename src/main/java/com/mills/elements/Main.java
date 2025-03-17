@@ -1,5 +1,8 @@
 package com.mills.elements;
 
+import com.mills.elements.Teams.TeamCommand;
+import com.mills.elements.Teams.TeamCommandTabComplete;
+import com.mills.elements.Teams.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -7,9 +10,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Main extends JavaPlugin {
 
     public static String prefix = ChatColor.translateAlternateColorCodes('&', "&e&lElemental &r&8» &7");
+    public static String teamsPrefix = ChatColor.translateAlternateColorCodes('&', "&e&lTeams &r&8» &7");
+
+    private TeamManager teamManager;
 
     @Override
     public void onEnable() {
+        teamManager = new TeamManager(this.getDataFolder());
+
         PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
 
@@ -18,8 +26,14 @@ public final class Main extends JavaPlugin {
 
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());
+        getCommand("team").setExecutor(new TeamCommand(this));
+        getCommand("team").setTabCompleter(new TeamCommandTabComplete(this));
 
         RegisterItems.registerElementalItems();
+    }
+
+    public TeamManager getTeamManager() {
+        return teamManager;
     }
 
 }

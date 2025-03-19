@@ -57,6 +57,17 @@ public class ElementalAdminCommand implements CommandExecutor {
                         player.getInventory().addItem(Items.wind());
                         name = "Wind";
                         player.sendMessage(Main.prefix + "gave " + name + " element item!");
+                    } else if (args[0].equalsIgnoreCase("kingcrown")) {
+                        player.getInventory().addItem(Items.kingcrown());
+                        name = "Kings Crown";
+                        player.sendMessage(Main.prefix + "gave " + name);
+                    } else if (args[0].equalsIgnoreCase("juggernaut")) {
+                        player.getInventory().addItem(Items.juggernautHelmet());
+                        player.getInventory().addItem(Items.juggernautChestplate());
+                        player.getInventory().addItem(Items.juggernautLeggings());
+                        player.getInventory().addItem(Items.juggernautBoots());
+                        name = "Juggernaut Armor Set";
+                        player.sendMessage(Main.prefix + "gave " + name);
                     }
 
                 }

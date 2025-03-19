@@ -11,15 +11,19 @@ public final class Main extends JavaPlugin {
 
     public static String prefix = ChatColor.translateAlternateColorCodes('&', "&e&lElemental &r&8» &7");
     public static String teamsPrefix = ChatColor.translateAlternateColorCodes('&', "&e&lTeams &r&8» &7");
+    private static Main instance;
 
     private TeamManager teamManager;
 
     @Override
     public void onEnable() {
+        instance = this;
+
         teamManager = new TeamManager(this.getDataFolder());
 
         PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
+        getServer().getPluginManager().registerEvents(new FallDamageListener(), this);
 
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);
@@ -34,6 +38,10 @@ public final class Main extends JavaPlugin {
 
     public TeamManager getTeamManager() {
         return teamManager;
+    }
+
+    public static Main getInstance() {
+        return instance;
     }
 
 }

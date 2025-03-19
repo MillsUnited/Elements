@@ -16,10 +16,13 @@ public class Util {
         while (matcher.find()) {
             String hex = matcher.group(1);
             String colorCode = net.md_5.bungee.api.ChatColor.of("#" + hex).toString();
-            matcher.appendReplacement(buffer, colorCode + ChatColor.BOLD + ChatColor.UNDERLINE);
+            matcher.appendReplacement(buffer, colorCode);
         }
         matcher.appendTail(buffer);
-        return buffer.toString();
+
+        return buffer.toString()
+                .replace("&l", ChatColor.BOLD.toString())
+                .replace("&n", ChatColor.UNDERLINE.toString());
     }
 
 }

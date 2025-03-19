@@ -18,9 +18,9 @@ public class AbilityInteractManager implements Listener {
             AbilityManager abilityManager = ItemManager.getElementItem(item);
             if (abilityManager != null) {
                 if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                    abilityManager.executeLeftClickAbility(player);
+                    abilityManager.executeLeftClick(player);
                 } else if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    abilityManager.executeRightClickAbility(player);
+                    abilityManager.executeRightClick(player);
                 }
             }
         }

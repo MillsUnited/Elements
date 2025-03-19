@@ -17,7 +17,7 @@ public class ElementalAdminTabComplete implements TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList("fire", "water", "ice", "shadow", "earth", "nature", "sun", "wind"), new ArrayList<>());
+            return StringUtil.copyPartialMatches(args[0], Arrays.asList("fire", "water", "ice", "shadow", "earth", "nature", "sun", "wind", "kingcrown", "juggernaut"), new ArrayList<>());
         }
 
         return new ArrayList<>();

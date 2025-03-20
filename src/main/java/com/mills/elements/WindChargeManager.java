@@ -2,6 +2,7 @@ package com.mills.elements;
 
 import com.mills.elements.Teams.TeamManager;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WindCharge;
@@ -44,6 +45,17 @@ public class WindChargeManager implements Listener {
                 Player attacker = (Player) hitCharge.getShooter();
                 if (attacker != null) {
                     if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+
+                        target.getWorld().strikeLightningEffect(target.getLocation());
+
+                        double damageSetter = 4.0;
+                        if (target.getHealth() <= damageSetter) {
+                            target.setHealth(0);
+                            target.damage(0, attacker);
+                        } else {
+                            target.setHealth(target.getHealth() - damageSetter);
+                        }
+
                         spawnTrackingWindCharges(attacker, target);
                     } else {
                         attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
@@ -75,6 +87,16 @@ public class WindChargeManager implements Listener {
 
                 trackingCharge.setShooter(attacker);
                 trackingCharge.setVelocity(getTrackingVector(spawnLoc, target, baseSpeed + (count * speedIncrease))); // Increase speed each time
+                target.getWorld().strikeLightningEffect(target.getLocation());
+                target.playSound(target.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0F, 1.0F);
+
+                double damageSetter = 2.0;
+                if (target.getHealth() <= damageSetter) {
+                    target.setHealth(0);
+                    target.damage(0, attacker);
+                } else {
+                    target.setHealth(target.getHealth() - damageSetter);
+                }
 
                 count++;
             }

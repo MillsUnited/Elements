@@ -15,19 +15,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
 public class PassiveAbilityManager implements Listener {
 
     private static final Map<UUID, Set<ItemStack>> activeItems = new HashMap<>();
+    private final HashMap<UUID, BukkitRunnable> coordinateTasks = new HashMap<>();
     private final Set<UUID> noFallDamage = new HashSet<>();
+    private String prefix = ChatColor.translateAlternateColorCodes('&', "&4&lJuggernaut &r&8» &c");
 
     private final JavaPlugin plugin;
 
     public PassiveAbilityManager(JavaPlugin plugin) {
         this.plugin = plugin;
         startInventoryCheck();
+        startJugernautCheck();
     }
 
     public void startInventoryCheck() {
@@ -59,19 +63,6 @@ public class PassiveAbilityManager implements Listener {
                     applyAbility(player, helmet);
                 }
 
-                ItemStack juggernautHelmet = player.getInventory().getHelmet();
-                ItemStack juggernautChestplate = player.getInventory().getChestplate();
-                ItemStack juggernautLeggings = player.getInventory().getLeggings();
-                ItemStack juggernautBoots = player.getInventory().getBoots();
-
-                if (isFullJuggernautArmor(juggernautHelmet, juggernautChestplate, juggernautLeggings, juggernautBoots)) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2, 0, true, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 2, 0, true, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 2, 0, true, false));
-                    hasHelmetItem = true;
-                    hasGlowing = true;
-                }
-
                 if (hasWindItem && !hasNoFallDamage(player)) {
                     addNoFallDamage(player);
                 } else if (!hasWindItem && hasNoFallDamage(player)) {
@@ -93,6 +84,63 @@ public class PassiveAbilityManager implements Listener {
                 activeItems.put(uuid, currentItems);
             }
         }, 0L, 1L);
+    }
+
+    private void startJugernautCheck() {
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    UUID playerID = player.getUniqueId();
+                    ItemStack juggernautHelmet = player.getInventory().getHelmet();
+                    ItemStack juggernautChestplate = player.getInventory().getChestplate();
+                    ItemStack juggernautLeggings = player.getInventory().getLeggings();
+                    ItemStack juggernautBoots = player.getInventory().getBoots();
+
+                    if (isFullJuggernautArmor(juggernautHelmet, juggernautChestplate, juggernautLeggings, juggernautBoots)) {
+                        if (!coordinateTasks.containsKey(playerID)) {
+                            startCoordinateBroadcast(player);
+                        }
+                    } else {
+                        stopCoordinateBroadcast(player);
+                    }
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0 ,1);
+    }
+
+    private void startCoordinateBroadcast(Player player) {
+        UUID uuid = player.getUniqueId();
+
+        BukkitRunnable task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!isFullJuggernautArmor(player.getInventory().getHelmet(), player.getInventory().getChestplate(),
+                        player.getInventory().getLeggings(), player.getInventory().getBoots())) {
+                    stopCoordinateBroadcast(player);
+                    return;
+                }
+
+                Location loc = player.getLocation();
+                String message = prefix + ChatColor.translateAlternateColorCodes('&', player.getName() + "'s coordinates: " +
+                        ChatColor.RED + "(" + loc.getBlockX() +
+                        ", " + loc.getBlockY() +
+                        ", " + loc.getBlockZ() + ")!");
+
+                Bukkit.broadcastMessage(message);
+            }
+        };
+        task.runTaskTimer(Main.getInstance(), 0, 2400);
+        coordinateTasks.put(uuid, task);
+    }
+
+    private void stopCoordinateBroadcast(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (coordinateTasks.containsKey(uuid)) {
+            coordinateTasks.get(uuid).cancel();
+            coordinateTasks.remove(uuid);
+        }
     }
 
     @EventHandler

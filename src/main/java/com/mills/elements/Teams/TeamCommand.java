@@ -225,7 +225,6 @@ public class TeamCommand implements CommandExecutor {
                     player.sendMessage(Main.teamsPrefix + "You cannot leave your own team, /team delete");
                     return true;
                 }
-                ownerPlayer.sendMessage(Main.teamsPrefix + player.getName() + " just left your team!");
                 player.sendMessage(Main.teamsPrefix + "left " + teamName + "!");
                 teamManager.removeTeamMember(playerUUID, teamName);
 

@@ -154,8 +154,9 @@ public class Items {
         lore.add(Util.parseHexColors("&#828318Duration: 10 sec"));
         lore.add(Util.parseHexColors("&#828318Cooldown: 2 min"));
         lore.add(" ");
-        lore.add(Util.parseHexColors("&#836618Ability 2: Hulk Jump"));
-        lore.add(Util.parseHexColors("&#836618Jump 50 blocks in the air taking no fall damage"));
+        lore.add(Util.parseHexColors("&#836618Ability 2: Hulk Smash"));
+        lore.add(Util.parseHexColors("&#836618Launches players in 5 block radius away from you"));
+        lore.add(Util.parseHexColors("&#836618dealing 6 hearts of damage"));
         lore.add(Util.parseHexColors("&#836618Cooldown: 30 sec"));
         lore.add(" ");
         lore.add(Util.parseHexColors("&#808080When in a mountain biome some abilities are enhanced"));
@@ -249,7 +250,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#A5A5A5Cooldown: 2 min"));
         lore.add("");
         lore.add(Util.parseHexColors("&#E3E3E3Ability 2: Tornado Charge"));
-        lore.add(Util.parseHexColors("&#E3E3E3Summons 5 flying wind charges at once wherever the player is looking."));
+        lore.add(Util.parseHexColors("&#E3E3E3Summons 5 flying wind charges where player is looking"));
+        lore.add(Util.parseHexColors("&#E3E3E3targeting the hit player"));
         lore.add(Util.parseHexColors("&#E3E3E3Cooldown: 30 sec"));
         lore.add(" ");
         lore.add(Util.parseHexColors("&#FFFFFFWhen in a mountain biome some abilities are enhanced"));
@@ -282,10 +284,10 @@ public class Items {
     public static ItemStack juggernautHelmet() {
         ItemStack juggernautHelmet = new ItemStack(Material.NETHERITE_HELMET);
         ItemMeta juggernautHelmetMeta = juggernautHelmet.getItemMeta();
-        String display = Util.parseHexColors("Helmet");
+        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1212&l&nu&#FB1D1D&l&ng&#FB2727&l&ng&#FC3131&l&ne&#FC3C3C&l&nr&#FC4646&l&nn&#FC5050&l&na&#FC5B5B&l&nu&#FC6565&l&nt &#FC7979&l&nH&#FD8484&l&ne&#FD8E8E&l&nl&#FD9898&l&nm&#FDA3A3&l&ne&#FDADAD&l&nt");
         juggernautHelmetMeta.setDisplayName(display);
-        juggernautHelmetMeta.setUnbreakable(true);
-        juggernautHelmetMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautHelmetMeta.addEnchant(Enchantment.PROTECTION, 4, true);
+        juggernautHelmetMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
         juggernautHelmet.setItemMeta(juggernautHelmetMeta);
         return juggernautHelmet;
     }
@@ -293,10 +295,10 @@ public class Items {
     public static ItemStack juggernautChestplate() {
         ItemStack juggernautChestplate = new ItemStack(Material.NETHERITE_CHESTPLATE);
         ItemMeta juggernautChestplateMeta = juggernautChestplate.getItemMeta();
-        String display = Util.parseHexColors("Chestplate");
+        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1010&l&nu&#FB1919&l&ng&#FB2121&l&ng&#FB2929&l&ne&#FC3131&l&nr&#FC3A3A&l&nn&#FC4242&l&na&#FC4A4A&l&nu&#FC5252&l&nt &#FC6363&l&nC&#FC6B6B&l&nh&#FC7373&l&ne&#FC7C7C&l&ns&#FD8484&l&nt&#FD8C8C&l&np&#FD9494&l&nl&#FD9D9D&l&na&#FDA5A5&l&nt&#FDADAD&l&ne");
         juggernautChestplateMeta.setDisplayName(display);
-        juggernautChestplateMeta.setUnbreakable(true);
-        juggernautChestplateMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautChestplateMeta.addEnchant(Enchantment.PROTECTION, 4, true);
+        juggernautChestplateMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
         juggernautChestplate.setItemMeta(juggernautChestplateMeta);
         return juggernautChestplate;
     }
@@ -304,10 +306,10 @@ public class Items {
     public static ItemStack juggernautLeggings() {
         ItemStack juggernautLeggings = new ItemStack(Material.NETHERITE_LEGGINGS);
         ItemMeta juggernautLeggingsMeta = juggernautLeggings.getItemMeta();
-        String display = Util.parseHexColors("Leggings");
+        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1111&l&nu&#FB1A1A&l&ng&#FB2424&l&ng&#FB2D2D&l&ne&#FC3636&l&nr&#FC3F3F&l&nn&#FC4848&l&na&#FC5151&l&nu&#FC5B5B&l&nt &#FC6D6D&l&nL&#FC7676&l&ne&#FC7F7F&l&ng&#FD8888&l&ng&#FD9292&l&ni&#FD9B9B&l&nn&#FDA4A4&l&ng&#FDADAD&l&ns");
         juggernautLeggingsMeta.setDisplayName(display);
-        juggernautLeggingsMeta.setUnbreakable(true);
-        juggernautLeggingsMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautLeggingsMeta.addEnchant(Enchantment.PROTECTION, 4, true);
+        juggernautLeggingsMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
         juggernautLeggings.setItemMeta(juggernautLeggingsMeta);
         return juggernautLeggings;
     }
@@ -315,10 +317,10 @@ public class Items {
     public static ItemStack juggernautBoots() {
         ItemStack juggernautBoots = new ItemStack(Material.NETHERITE_BOOTS);
         ItemMeta juggernautBootsMeta = juggernautBoots.getItemMeta();
-        String display = Util.parseHexColors("Boots");
+        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1313&l&nu&#FB1E1E&l&ng&#FB2929&l&ng&#FC3434&l&ne&#FC3F3F&l&nr&#FC4A4A&l&nn&#FC5555&l&na&#FC6060&l&nu&#FC6B6B&l&nt &#FC8181&l&nB&#FD8C8C&l&no&#FD9797&l&no&#FDA2A2&l&nt&#FDADAD&l&ns");
         juggernautBootsMeta.setDisplayName(display);
-        juggernautBootsMeta.setUnbreakable(true);
-        juggernautBootsMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautBootsMeta.addEnchant(Enchantment.PROTECTION, 4, true);
+        juggernautBootsMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
         juggernautBoots.setItemMeta(juggernautBootsMeta);
         return juggernautBoots;
     }

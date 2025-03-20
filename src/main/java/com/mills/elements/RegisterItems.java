@@ -100,9 +100,9 @@ public class RegisterItems {
                 }, 30000, Items.earth())
         );
         ItemManager.registerItem("Nature Element", Items.nature(),
-                new LeftClickAbility("Juggernaut Resistance", player -> {
+                new LeftClickAbility("Nature’s Resistance", player -> {
 
-                    player.sendMessage(Main.prefix + "You have activated Juggernaut Resistance!");
+                    player.sendMessage(Main.prefix + "You have activated Nature’s Resistance!");
                     juggernautResistance(player);
 
                 }, 120000, Items.nature()),
@@ -142,7 +142,7 @@ public class RegisterItems {
                     player.sendMessage(Main.prefix + "You have activated Tornado Charge!");
                     tornadoCharge(player);
 
-                }, 30000, Items.wind())
+                }, 120000, Items.wind())
         );
     }
 
@@ -185,6 +185,8 @@ public class RegisterItems {
                                 if (!main.getTeamManager().isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
                                     boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
                                     double damageSetter = inNetherBiome ? 1.0 : 0.5;
+                                    int fireDuration = 100;
+                                    target.setFireTicks(fireDuration);
 
                                     if (target.getHealth() <= damageSetter) {
                                         target.setHealth(0);
@@ -214,6 +216,8 @@ public class RegisterItems {
                 ticks++;
             }
         }.runTaskTimer(Main.getInstance(), 0L, 1L);
+        SpiralEffect.startSpiralEffect(attacker, 252, 208, 92);
+        attacker.playSound(attacker.getLocation(),Sound.ITEM_FIRECHARGE_USE, 1.0F, 1.0F);
     }
 
     private void volcanicEruption(Player attacker) {
@@ -222,6 +226,7 @@ public class RegisterItems {
         boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
         long velocitySetter = inNetherBiome ? 50 : 35;
 
+        SpiralEffect.startSpiralEffect(attacker, 252, 137, 92);
         Vector velocity = new Vector(0, velocitySetter, 0);
         attacker.setVelocity(velocity);
 
@@ -235,7 +240,7 @@ public class RegisterItems {
             loc.setY(loc.getY());
             Block block = loc.getBlock();
 
-            if (block.getType() == Material.AIR || block.getType() == Material.WATER) {
+            if (block.getType() == Material.AIR || block.getType() == Material.WATER || block.getType() == Material.SNOW) {
                 block.setType(Material.LAVA);
             }
         }, 5L);
@@ -250,6 +255,7 @@ public class RegisterItems {
                 if (blockBelow.getType() != Material.AIR) {
 
                     attacker.setFallDistance(0);
+                    attacker.playSound(attacker.getLocation(),Sound.ITEM_MACE_SMASH_GROUND, 1.0F, 1.0F);
 
                     Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
                         FallDamageListener.removeNoFallDamage(attacker);
@@ -265,8 +271,11 @@ public class RegisterItems {
 
         boolean inIceBiome = BuffedAbilityListener.iceElement(attacker);
 
-        long unfreezeDelay = inIceBiome ? 200 : 100;
+        long unfreezeDelay = inIceBiome ? 300 : 200;
         long freezeEffectEndDelay = inIceBiome ? 600 : 400;
+
+        SpiralEffect.startSpiralEffect(attacker, 10, 186, 255);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_DEACTIVATE, 1.0F, 1.0F);
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
@@ -275,6 +284,7 @@ public class RegisterItems {
                         PlayerMovementListener.addFrozenPlayer(target);
                         target.sendMessage(Main.prefix + "You have been frozen by " + attacker.getName() + " for 5 seconds!");
                     }
+                    target.playSound(target.getLocation(),Sound.BLOCK_CONDUIT_DEACTIVATE, 1.0F, 1.0F);
                     affectedPlayers.add(target.getUniqueId());
                     target.sendMessage(Main.prefix + "You have been given frozen effect by " + attacker.getName() + " for 30 seconds!");
                     target.setFreezeTicks(Integer.MAX_VALUE);
@@ -333,6 +343,8 @@ public class RegisterItems {
         moveVector.setY(0.5 * upVelocity); // Moves about 3 blocks up
 
         attacker.setVelocity(moveVector);
+        SpiralEffect.startSpiralEffect(attacker, 84, 109, 255);
+        attacker.playSound(attacker.getLocation(),Sound.ENTITY_BREEZE_IDLE_AIR, 1.0F, 1.0F);
     }
 
     private void poseidonsRush(Player attacker) {
@@ -340,9 +352,13 @@ public class RegisterItems {
         int duration = inWaterBiome ? 400 : 200;
 
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, duration, 0, true, false));
+        SpiralEffect.startSpiralEffect(attacker, 92, 200, 252);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_ACTIVATE, 1.0F, 1.0F);
     }
 
     private void waterKB(Player attacker, double radius) {
+        SpiralEffect.startSpiralEffect(attacker, 92, 252, 220);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1.0F, 1.0F);
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
                 if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
@@ -365,6 +381,8 @@ public class RegisterItems {
     }
 
     private void trueInvisibility(Player attacker) {
+        SpiralEffect.startSpiralEffect(attacker, 51, 13, 96);
+        attacker.playSound(attacker.getLocation(),Sound.ENTITY_WARDEN_DEATH, 1.0F, 1.0F);
         if (!TrueInvisibilityListener.isHidden(attacker)) {
             TrueInvisibilityListener.hidePlayer(attacker);
         }
@@ -384,6 +402,8 @@ public class RegisterItems {
 
     private void shadowSpeed(Player attacker, double radius) {
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 400, 2, true, false));
+        SpiralEffect.startSpiralEffect(attacker, 252, 137, 92);
+        attacker.playSound(attacker.getLocation(),Sound.ENTITY_WARDEN_ROAR, 1.0F, 1.0F);
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
                 if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
@@ -400,6 +420,8 @@ public class RegisterItems {
     }
 
     private void attackSpeed(Player attacker, double boostAmount) {
+        SpiralEffect.startSpiralEffect(attacker, 130, 131, 24);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_BEACON_ACTIVATE, 1.0F, 1.0F);
         if (!AttackSpeedHandler.isAttackSpeedBoosted(attacker)) {
             AttackSpeedHandler.applyAttackSpeedBoost(attacker, boostAmount);
         }
@@ -420,6 +442,8 @@ public class RegisterItems {
 
         Location attackerLoc = attacker.getLocation();
         List<Player> entities = new ArrayList<>();
+        SpiralEffect.startSpiralEffect(attacker, 131, 102, 24);
+        attacker.playSound(attacker.getLocation(),Sound.ITEM_MACE_SMASH_GROUND, 1.0F, 1.0F);
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
@@ -453,7 +477,7 @@ public class RegisterItems {
                         if (blockBelow.getType() != Material.AIR) {
                             Location targetNewLoc = target.getLocation();
                             target.setFallDistance(0);
-                            target.playSound(targetNewLoc, Sound.ITEM_MACE_SMASH_GROUND, 1.0f, 1.0f);
+                            target.playSound(targetNewLoc, Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0f, 1.0f);
                             boolean inEarthBiome = BuffedAbilityListener.earthElement(attacker);
                             double damage = inEarthBiome ? 16.0 : 12.0;
 
@@ -479,6 +503,9 @@ public class RegisterItems {
         boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
         int resistanceDuration = inNatureBiome ? 300 : 200;
 
+        SpiralEffect.startSpiralEffect(attacker, 76, 176, 103);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_AMBIENT, 1.0F, 1.0F);
+
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, resistanceDuration, 2, true, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, 2, true, false));
     }
@@ -487,6 +514,8 @@ public class RegisterItems {
         double radius = 5;
         int points = 80;
         Location center = attacker.getLocation().add(0, 1, 0);
+
+        SpiralEffect.startSpiralEffect(attacker, 88, 131, 38);
 
         new BukkitRunnable() {
             int tick = 0;
@@ -516,12 +545,12 @@ public class RegisterItems {
                 if (teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
                     boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
                     if (inNatureBiome) {
-                        target.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 0, true, false, true));
+                        target.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 1, true, false, true));
                     }
 
                     target.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
                     target.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
-                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f);
+                    target.playSound(target.getLocation(), Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.0f);
                 }
             }
         }
@@ -531,7 +560,7 @@ public class RegisterItems {
         }
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
-        attacker.getWorld().playSound(attacker.getLocation(), Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f);
+        attacker.getWorld().playSound(attacker.getLocation(), Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.0f);
     }
 
     private void solarStrength(Player attacker) {
@@ -540,6 +569,8 @@ public class RegisterItems {
 
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, duration, 2, true, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 400, 2, true, false));
+        SpiralEffect.startSpiralEffect(attacker, 252, 208, 92);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_BEACON_POWER_SELECT, 1.0F, 1.0F);
     }
 
     private void sunsRays(Player attacker) {
@@ -548,12 +579,17 @@ public class RegisterItems {
 
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, amplifier, true, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
+        SpiralEffect.startSpiralEffect(attacker, 252, 137, 92);
+        attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_ACTIVATE, 1.0F, 1.0F);
     }
 
     private void windCrush(Player attacker) {
         Location eyeLoc = attacker.getLocation();
         Vector direction = eyeLoc.getDirection().normalize();
         List<Entity> entitiesInFront = new ArrayList<>();
+
+        SpiralEffect.startSpiralEffect(attacker, 165, 165, 165);
+        attacker.playSound(attacker.getLocation(),Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0F, 1.0F);
 
         for (double i = 1; i <= 5; i++) {
             Location checkLoc = eyeLoc.clone().add(direction.clone().multiply(i));
@@ -605,6 +641,8 @@ public class RegisterItems {
     }
 
     private void tornadoCharge(Player attacker) {
+        SpiralEffect.startSpiralEffect(attacker, 227, 227, 227);
+        attacker.playSound(attacker.getLocation(),Sound.ENTITY_BREEZE_IDLE_GROUND, 1.0F, 1.0F);
         WindChargeManager.spawnWindCharge(attacker);
     }
 }

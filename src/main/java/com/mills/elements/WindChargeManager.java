@@ -1,5 +1,6 @@
 package com.mills.elements;
 
+import com.mills.elements.Teams.TeamManager;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -12,6 +13,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class WindChargeManager implements Listener {
+
+    private Main main;
+    private TeamManager teamManager;
+
+    public WindChargeManager(Main main) {
+        this.main = main;
+        this.teamManager = main.getTeamManager();
+    }
 
     public static void spawnWindCharge(Player attacker) {
         World world = attacker.getWorld();
@@ -34,7 +43,11 @@ public class WindChargeManager implements Listener {
                 Player target = (Player) event.getHitEntity();
                 Player attacker = (Player) hitCharge.getShooter();
                 if (attacker != null) {
-                    spawnTrackingWindCharges(attacker, target);
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        spawnTrackingWindCharges(attacker, target);
+                    } else {
+                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                    }
                 }
             }
         }
@@ -45,11 +58,13 @@ public class WindChargeManager implements Listener {
         new BukkitRunnable() {
             int count = 0;
             double baseSpeed = 1.5; // Start speed
-            double speedIncrease = 0.5; // Each Wind Charge will be faster by this amount
+            double speedIncrease = 1.0; // Each Wind Charge will be faster by this amount
 
             @Override
             public void run() {
-                if (count >= 4) {
+                boolean inWind = BuffedAbilityListener.windElement(attacker);
+                double windChargesAmount = inWind ? 6 : 4;
+                if (count >= windChargesAmount) {
                     this.cancel();
                     return;
                 }

@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -70,7 +71,7 @@ public class TeamCommand implements CommandExecutor {
                 teamManager.removeTeam(teamName);
                 player.sendMessage(Main.teamsPrefix + "You have deleted your team!");
 
-            } else if (args[0].equalsIgnoreCase("add")) {
+            } else if (args[0].equalsIgnoreCase("invite")) {
 
                 if (args.length < 2) {
                     return false;
@@ -218,6 +219,14 @@ public class TeamCommand implements CommandExecutor {
                 }
 
                 String teamName = teamManager.getTeamName(playerUUID);
+                UUID ownerUUID = teamManager.getTeamOwner(teamName);
+                Player ownerPlayer = Bukkit.getPlayer(ownerUUID);
+                if (player.equals(ownerPlayer)) {
+                    player.sendMessage(Main.teamsPrefix + "You cannot leave your own team, /team delete");
+                    return true;
+                }
+                ownerPlayer.sendMessage(Main.teamsPrefix + player.getName() + " just left your team!");
+                player.sendMessage(Main.teamsPrefix + "left " + teamName + "!");
                 teamManager.removeTeamMember(playerUUID, teamName);
 
             } else if (args[0].equalsIgnoreCase("info")) {

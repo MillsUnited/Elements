@@ -1,7 +1,10 @@
 package com.mills.elements;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public class BuffedAbilityListener {
@@ -19,16 +22,14 @@ public class BuffedAbilityListener {
 
     public static boolean waterElement(Player player) {
         Location playerLoc = player.getLocation();
-        Biome biome = playerLoc.getBlock().getBiome();
-        if (biome == Biome.OCEAN) return true;
-        if (biome == Biome.DEEP_OCEAN) return true;
-        if (biome == Biome.FROZEN_OCEAN) return true;
-        if (biome == Biome.DEEP_FROZEN_OCEAN) return true;
-        if (biome == Biome.COLD_OCEAN) return true;
-        if (biome == Biome.DEEP_COLD_OCEAN) return true;
-        if (biome == Biome.LUKEWARM_OCEAN) return true;
-        if (biome == Biome.DEEP_LUKEWARM_OCEAN) return true;
-        if (biome == Biome.WARM_OCEAN) return true;
+        Block blockBelow = playerLoc.getBlock().getRelative(BlockFace.DOWN);
+        if (blockBelow.getType() == Material.WATER || blockBelow.getType() == Material.BUBBLE_COLUMN) {
+            return true;
+        }
+        Block blockAtFeet = playerLoc.getBlock();
+        if (blockAtFeet.getType() == Material.WATER || blockAtFeet.getType() == Material.BUBBLE_COLUMN) {
+            return true;
+        }
         return false;
     }
 
@@ -56,6 +57,12 @@ public class BuffedAbilityListener {
     }
 
     public static boolean windElement(Player player) {
+        Location playerLoc = player.getLocation();
+        if (playerLoc.getY() >= 115) return true;
+        return false;
+    }
+
+    public static boolean earthElement(Player player) {
         Location playerLoc = player.getLocation();
         Biome biome = playerLoc.getBlock().getBiome();
         if (biome == Biome.MEADOW) return true;

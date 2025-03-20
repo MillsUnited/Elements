@@ -1,11 +1,10 @@
 package com.mills.elements;
 
+import com.mills.elements.Teams.TeamManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.SmallFireball;
-import org.bukkit.entity.WindCharge;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -16,7 +15,15 @@ import java.util.*;
 
 public class RegisterItems {
 
-    public static void registerElementalItems() {
+    private Main main;
+    private TeamManager teamManager;
+
+    public RegisterItems(Main main) {
+        this.main = main;
+        this.teamManager = main.getTeamManager();
+    }
+
+    public void registerElementalItems() {
         ItemManager.registerItem("Fire Element", Items.fire(),
                 new LeftClickAbility("Fire Blast", player -> {
 
@@ -85,10 +92,10 @@ public class RegisterItems {
 
                 }, 120000, Items.earth()),
 
-                new RightClickAbility("Hulk Jump", player -> {
+                new RightClickAbility("Hulk Smash", player -> {
 
-                    player.sendMessage(Main.prefix + "You have activated Hulk Jump!");
-                    hulkJump(player);
+                    player.sendMessage(Main.prefix + "You have activated Hulk Smash!");
+                    hulkSmash(player, 5);
 
                 }, 30000, Items.earth())
         );
@@ -139,7 +146,7 @@ public class RegisterItems {
         );
     }
 
-    private static void fireBlastAbility(Player attacker) {
+    private void fireBlastAbility(Player attacker) {
         new BukkitRunnable() {
             int ticks = 0;
 
@@ -175,26 +182,31 @@ public class RegisterItems {
                                 if (target.isDead() || target.getHealth() <= 0) {
                                     continue;
                                 }
+                                if (!main.getTeamManager().isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                                    boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
+                                    double damageSetter = inNetherBiome ? 1.0 : 0.5;
 
-                                double fixedDamage = 0.5;
-                                if (target.getHealth() <= fixedDamage) {
-                                    target.setHealth(0);
-                                    target.damage(0, attacker);
+                                    if (target.getHealth() <= damageSetter) {
+                                        target.setHealth(0);
+                                        target.damage(0, attacker);
+                                    } else {
+                                        target.setHealth(target.getHealth() - damageSetter);
+                                    }
+
+                                    Vector kbDirection = target.getLocation().toVector().subtract(attacker.getLocation().toVector()).normalize();
+
+                                    double horizontalStrength = 0.8; // Lower horizontal impact
+                                    double verticalBoost = 0.35; // Stronger upward motion
+
+                                    Vector kb = kbDirection.multiply(horizontalStrength);
+                                    kb.setY(verticalBoost); // Set strong upward force
+
+                                    target.setVelocity(kb);
+                                    target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0f, 1.0f);
+                                    attacker.playSound(attacker.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1.0f, 1.0f);
                                 } else {
-                                    target.setHealth(target.getHealth() - fixedDamage);
+                                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                                 }
-
-                                Vector kbDirection = target.getLocation().toVector().subtract(attacker.getLocation().toVector()).normalize();
-
-                                double horizontalStrength = 0.8; // Lower horizontal impact
-                                double verticalBoost = 0.35; // Stronger upward motion
-
-                                Vector kb = kbDirection.multiply(horizontalStrength);
-                                kb.setY(verticalBoost); // Set strong upward force
-
-                                target.setVelocity(kb);
-                                target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0f, 1.0f);
-                                attacker.playSound(attacker.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1.0f, 1.0f);
                             }
                         }
                     }
@@ -204,10 +216,13 @@ public class RegisterItems {
         }.runTaskTimer(Main.getInstance(), 0L, 1L);
     }
 
-    private static void volcanicEruption(Player attacker) {
+    private void volcanicEruption(Player attacker) {
         Location originalLocation = attacker.getLocation();
 
-        Vector velocity = new Vector(0, 50, 0);
+        boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
+        long velocitySetter = inNetherBiome ? 50 : 35;
+
+        Vector velocity = new Vector(0, velocitySetter, 0);
         attacker.setVelocity(velocity);
 
         if (!FallDamageListener.hasNoFallDamage(attacker)) {
@@ -245,18 +260,27 @@ public class RegisterItems {
         }.runTaskTimer(Main.getInstance(), 5L, 2L);
     }
 
-    private static void playerFreeze(Player attacker, double radius) {
+    private void playerFreeze(Player attacker, double radius) {
         Set<UUID> affectedPlayers = new HashSet<>();
+
+        boolean inIceBiome = BuffedAbilityListener.iceElement(attacker);
+
+        long unfreezeDelay = inIceBiome ? 200 : 100;
+        long freezeEffectEndDelay = inIceBiome ? 600 : 400;
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                if (!PlayerMovementListener.isFrozen(target)) {
-                    PlayerMovementListener.addFrozenPlayer(target);
-                    target.sendMessage(Main.prefix + "You have been frozen by " + attacker.getName() + " for 5 seconds!");
+                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    if (!PlayerMovementListener.isFrozen(target)) {
+                        PlayerMovementListener.addFrozenPlayer(target);
+                        target.sendMessage(Main.prefix + "You have been frozen by " + attacker.getName() + " for 5 seconds!");
+                    }
+                    affectedPlayers.add(target.getUniqueId());
+                    target.sendMessage(Main.prefix + "You have been given frozen effect by " + attacker.getName() + " for 30 seconds!");
+                    target.setFreezeTicks(Integer.MAX_VALUE);
+                } else {
+                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                 }
-                affectedPlayers.add(target.getUniqueId());
-                target.sendMessage(Main.prefix + "You have been given frozen effect by " + attacker.getName() + " for 30 seconds!");
-                target.setFreezeTicks(Integer.MAX_VALUE);
             }
         }
 
@@ -264,18 +288,31 @@ public class RegisterItems {
             @Override
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (PlayerMovementListener.isFrozen(player)) {
-                        PlayerMovementListener.removeFrozenPlayer(player);
-                        player.sendMessage(Main.prefix + "You are no longer movement-restricted!");
+                    if (!attacker.equals(player)) {
+                        if (teamManager.isInSameTeam(attacker.getUniqueId(), player.getUniqueId())) {
+                            cancel();
+                            return;
+                        }
+
+                        if (PlayerMovementListener.isFrozen(player)) {
+                            PlayerMovementListener.removeFrozenPlayer(player);
+                            player.sendMessage(Main.prefix + "You are no longer movement-restricted!");
+                        }
                     }
                 }
             }
-        }.runTaskLater(Main.getInstance(), 200);
+        }.runTaskLater(Main.getInstance(), unfreezeDelay);
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 for (UUID uuid : affectedPlayers) {
+
+                    if (teamManager.isInSameTeam(attacker.getUniqueId(), uuid)) {
+                        cancel();
+                        return;
+                    }
+
                     Player player = Bukkit.getPlayer(uuid);
                     if (player != null && player.getFreezeTicks() > 0) {
                         player.setFreezeTicks(0);
@@ -283,39 +320,56 @@ public class RegisterItems {
                     }
                 }
             }
-        }.runTaskLater(Main.getInstance(), 600);
+        }.runTaskLater(Main.getInstance(), freezeEffectEndDelay);
     }
 
-    private static void iceDash(Player attacker) {
+    private void iceDash(Player attacker) {
+        boolean inIceBiome = BuffedAbilityListener.iceElement(attacker);
+        double forwardVelocity = inIceBiome ? 4.0 : 2.5;
+        double upVelocity = inIceBiome ? 3.0 : 1.0;
+
         Vector direction = attacker.getLocation().getDirection().normalize(); // Get player's facing direction and normalize it
-        Vector moveVector = direction.multiply(0.6 * 2.5); // Moves about 5 blocks forward
-        moveVector.setY(0.5 * 1); // Moves about 3 blocks up
+        Vector moveVector = direction.multiply(0.6 * forwardVelocity); // Moves about 5 blocks forward
+        moveVector.setY(0.5 * upVelocity); // Moves about 3 blocks up
 
         attacker.setVelocity(moveVector);
     }
 
-    private static void poseidonsRush(Player attacker) {
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 200, 0, true, false));
+    private void poseidonsRush(Player attacker) {
+        boolean inWaterBiome = BuffedAbilityListener.waterElement(attacker);
+        int duration = inWaterBiome ? 400 : 200;
+
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, duration, 0, true, false));
     }
 
-    private static void waterKB(Player attacker, double radius) {
+    private void waterKB(Player attacker, double radius) {
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                Vector knockback = target.getLocation().toVector()
-                        .subtract(attacker.getLocation().toVector())
-                        .normalize()
-                        .multiply(2.5)
-                        .setY(1);
-                target.setVelocity(knockback);
+                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    boolean inWaterBiome = BuffedAbilityListener.waterElement(attacker);
+                    double forwardVelocity = inWaterBiome ? 6 : 2.5;
+                    double upVelocity = inWaterBiome ? 3 : 1;
+
+                    Vector knockback = target.getLocation().toVector()
+                            .subtract(attacker.getLocation().toVector())
+                            .normalize()
+                            .multiply(forwardVelocity)
+                            .setY(upVelocity);
+                    target.setVelocity(knockback);
+                } else {
+                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                }
             }
         }
 
     }
 
-    public static void trueInvisibility(Player attacker) {
+    private void trueInvisibility(Player attacker) {
         if (!TrueInvisibilityListener.isHidden(attacker)) {
             TrueInvisibilityListener.hidePlayer(attacker);
         }
+        boolean inEndBiome = BuffedAbilityListener.shadowElement(attacker);
+        long delay = inEndBiome ? 200 : 100;
 
         new BukkitRunnable() {
             @Override
@@ -325,23 +379,33 @@ public class RegisterItems {
                     attacker.sendMessage(Main.prefix + "Your true invisibility has fully worn off!");
                 }
             }
-        }.runTaskLater(Main.getInstance(), 100);
+        }.runTaskLater(Main.getInstance(), delay);
     }
 
-    private static void shadowSpeed(Player attacker, double radius) {
+    private void shadowSpeed(Player attacker, double radius) {
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 400, 2, true, false));
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 0, true, false));
-                target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.0f);
+                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    boolean inEndBiome = BuffedAbilityListener.shadowElement(attacker);
+                    int duration = inEndBiome ? 400 : 200;
+
+                    target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, true, false));
+                    target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.0f);
+                } else {
+                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                }
             }
         }
     }
 
-    private static void attackSpeed(Player attacker, double boostAmount) {
+    private void attackSpeed(Player attacker, double boostAmount) {
         if (!AttackSpeedHandler.isAttackSpeedBoosted(attacker)) {
             AttackSpeedHandler.applyAttackSpeedBoost(attacker, boostAmount);
         }
+
+        boolean inEarthBiome = BuffedAbilityListener.earthElement(attacker);
+        long duration = inEarthBiome ? 400 : 200;
 
         new BukkitRunnable() {
             @Override
@@ -349,44 +413,77 @@ public class RegisterItems {
                 AttackSpeedHandler.removeAttackSpeedBoost(attacker);
                 attacker.sendMessage(Main.prefix + "Your attack speed boost has worn off!");
             }
-        }.runTaskLater(Main.getInstance(), 200);
+        }.runTaskLater(Main.getInstance(), duration);
     }
 
-    private static void hulkJump(Player attacker) {
+    private void hulkSmash(Player attacker, double radius) {
 
-        Vector velocity = new Vector(0, 50, 0);
-        attacker.setVelocity(velocity);
+        Location attackerLoc = attacker.getLocation();
+        List<Player> entities = new ArrayList<>();
 
-        if (!FallDamageListener.hasNoFallDamage(attacker)) {
-            FallDamageListener.addNoFallDamage(attacker);
-        }
-
-        // Check when the player lands
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Location belowPlayer = attacker.getLocation().clone().subtract(0, 1, 0);
-                Block blockBelow = belowPlayer.getBlock();
-
-                if (blockBelow.getType() != Material.AIR) {
-
-                    attacker.setFallDistance(0);
-
-                    Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
-                        FallDamageListener.removeNoFallDamage(attacker);
-                    }, 40L);
-                    this.cancel();
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
+                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    entities.add(target);
+                } else {
+                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 5L, 2L);
+        }
+
+        for (Player target : entities) {
+            if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                Location targetLoc = target.getLocation();
+                Vector direction = targetLoc.toVector().subtract(attackerLoc.toVector());
+                direction.normalize();
+                direction.setY(10);
+                direction.multiply(5);
+                target.setVelocity(direction);
+
+                if (!FallDamageListener.hasNoFallDamage(target)) {
+                    FallDamageListener.addNoFallDamage(target);
+                }
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Location belowPlayer = target.getLocation().clone().subtract(0, 1, 0);
+                        Block blockBelow = belowPlayer.getBlock();
+
+                        if (blockBelow.getType() != Material.AIR) {
+                            Location targetNewLoc = target.getLocation();
+                            target.setFallDistance(0);
+                            target.playSound(targetNewLoc, Sound.ITEM_MACE_SMASH_GROUND, 1.0f, 1.0f);
+                            boolean inEarthBiome = BuffedAbilityListener.earthElement(attacker);
+                            double damage = inEarthBiome ? 16.0 : 12.0;
+
+                            if (target.getHealth() <= damage) {
+                                target.setHealth(0);
+                                target.damage(0, attacker);
+                            } else {
+                                target.setHealth(target.getHealth() - damage);
+                            }
+
+                            Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+                                FallDamageListener.removeNoFallDamage(target);
+                            }, 40L);
+                            this.cancel();
+                        }
+                    }
+                }.runTaskTimer(Main.getInstance(), 5L, 2L);
+            }
+        }
     }
 
-    private static void juggernautResistance(Player attacker) {
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 200, 2, true, false));
+    private void juggernautResistance(Player attacker) {
+        boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
+        int resistanceDuration = inNatureBiome ? 300 : 200;
+
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, resistanceDuration, 2, true, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, 2, true, false));
     }
 
-    private static void allieHeal(Player attacker) {
+    private void allieHeal(Player attacker) {
         double radius = 5;
         int points = 80;
         Location center = attacker.getLocation().add(0, 1, 0);
@@ -416,28 +513,44 @@ public class RegisterItems {
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                target.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
-                target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f);
+                if (teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
+                    if (inNatureBiome) {
+                        target.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 0, true, false, true));
+                    }
+
+                    target.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
+                    target.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
+                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f);
+                }
             }
         }
-
+        boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
+        if (inNatureBiome) {
+            attacker.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 0, true, false, true));
+        }
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
         attacker.getWorld().playSound(attacker.getLocation(), Sound.ENTITY_GENERIC_DRINK, 1.0f, 1.0f);
     }
 
-    private static void solarStrength(Player attacker) {
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 400, 2, true, false));
+    private void solarStrength(Player attacker) {
+        boolean inSun = BuffedAbilityListener.isDaytime(attacker);
+        int duration = inSun ? 500 : 400;
+
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, duration, 2, true, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 400, 2, true, false));
     }
 
-    private static void sunsRays(Player attacker) {
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, 4, true, false));
+    private void sunsRays(Player attacker) {
+        boolean inSun = BuffedAbilityListener.isDaytime(attacker);
+        int amplifier = inSun ? 5 : 4;
+
+        attacker.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, amplifier, true, false));
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
     }
 
-    private static void windCrush(Player attacker) {
+    private void windCrush(Player attacker) {
         Location eyeLoc = attacker.getLocation();
         Vector direction = eyeLoc.getDirection().normalize();
         List<Entity> entitiesInFront = new ArrayList<>();
@@ -446,7 +559,11 @@ public class RegisterItems {
             Location checkLoc = eyeLoc.clone().add(direction.clone().multiply(i));
             for (Entity entity : attacker.getWorld().getNearbyEntities(checkLoc, 1, 1, 1)) {
                 if (!entity.equals(attacker) && entity instanceof Player && !entitiesInFront.contains(entity)) {
-                    entitiesInFront.add(entity);
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), entity.getUniqueId())) {
+                        entitiesInFront.add(entity);
+                    } else {
+                        attacker.sendMessage(Main.prefix + entity.getName() + " is part of your team!");
+                    }
                 }
             }
         }
@@ -468,12 +585,13 @@ public class RegisterItems {
                     if (blockBelow.getType() != Material.AIR) {
 
                         entity.setFallDistance(0);
-                        double fixedDamage = 12.0;
-                        if (((Player) entity).getHealth() <= fixedDamage) {
+                        boolean inWind = BuffedAbilityListener.windElement(attacker);
+                        double damage = inWind ? 14.0 : 12.0;
+                        if (((Player) entity).getHealth() <= damage) {
                             ((Player) entity).setHealth(0);
                             ((Player) entity).damage(0, attacker);
                         } else {
-                            ((Player) entity).setHealth(((Player) entity).getHealth() - fixedDamage);
+                            ((Player) entity).setHealth(((Player) entity).getHealth() - damage);
                         }
 
                         Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
@@ -486,7 +604,7 @@ public class RegisterItems {
         }
     }
 
-    private static void tornadoCharge(Player attacker) {
+    private void tornadoCharge(Player attacker) {
         WindChargeManager.spawnWindCharge(attacker);
     }
 }

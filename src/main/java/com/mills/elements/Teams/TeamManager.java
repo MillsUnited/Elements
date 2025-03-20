@@ -125,6 +125,15 @@ public class TeamManager {
         return false;
     }
 
+    public boolean isInSameTeam(UUID player1, UUID player2) {
+        String teamName1 = getTeamName(player1);
+        String teamName2 = getTeamName(player2);
+        if (teamName1 != null && teamName1.equals(teamName2)) {
+            return true;
+        }
+        return false;
+    }
+
     private void saveConfig() {
         try {
             config.save(file);

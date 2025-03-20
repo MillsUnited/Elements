@@ -31,8 +31,8 @@ public class TeamCommandTabComplete implements TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
         if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList("create", "delete", "add", "kick", "info", "leave", "accept"), new ArrayList<>());
-        } else if (args.length == 2 && (args[0].equalsIgnoreCase("add"))) {
+            return StringUtil.copyPartialMatches(args[0], Arrays.asList("create", "delete", "invite", "kick", "info", "leave", "accept"), new ArrayList<>());
+        } else if (args.length == 2 && (args[0].equalsIgnoreCase("invite"))) {
             List<String> availablePlayers = new ArrayList<>();
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

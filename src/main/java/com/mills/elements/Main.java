@@ -25,8 +25,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
         getServer().getPluginManager().registerEvents(new FallDamageListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementListener(), this);
-        getServer().getPluginManager().registerEvents(new WindChargeManager(), this);
-
+        getServer().getPluginManager().registerEvents(new WindChargeManager(this), this);
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);
 
@@ -35,7 +34,8 @@ public final class Main extends JavaPlugin {
         getCommand("team").setExecutor(new TeamCommand(this));
         getCommand("team").setTabCompleter(new TeamCommandTabComplete(this));
 
-        RegisterItems.registerElementalItems();
+        RegisterItems registerItems = new RegisterItems(Main.getInstance());
+        registerItems.registerElementalItems();
     }
 
     public TeamManager getTeamManager() {

@@ -24,6 +24,8 @@ public final class Main extends JavaPlugin {
         PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
         getServer().getPluginManager().registerEvents(new FallDamageListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerMovementListener(), this);
+        getServer().getPluginManager().registerEvents(new WindChargeManager(), this);
 
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);

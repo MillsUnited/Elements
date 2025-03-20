@@ -99,15 +99,15 @@ public class LeftClickAbility {
         } else if (item.isSimilar(Items.water())) {
             return BarColor.BLUE;
         } else if (item.isSimilar(Items.ice())) {
-            return BarColor.WHITE;
+            return BarColor.BLUE;
         } else if (item.isSimilar(Items.shadow())) {
             return BarColor.PURPLE;
         } else if (item.isSimilar(Items.earth())) {
-            return BarColor.YELLOW;
+            return BarColor.GREEN;
         } else if (item.isSimilar(Items.nature())) {
             return BarColor.GREEN;
         } else if (item.isSimilar(Items.sun())) {
-            return BarColor.PINK;
+            return BarColor.YELLOW;
         } else if (item.isSimilar(Items.wind())) {
             return BarColor.WHITE;
         }

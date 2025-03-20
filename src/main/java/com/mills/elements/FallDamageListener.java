@@ -24,10 +24,9 @@ public class FallDamageListener implements Listener {
                 e.setDamage(0);
                 player.setFallDistance(0);
 
-                // Delay immunity removal to ensure no accidental damage
                 Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
                     removeNoFallDamage(player);
-                }, 20L); // 1-second delay after fall damage prevention
+                }, 20L);
             }
         }
     }

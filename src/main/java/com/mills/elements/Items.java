@@ -35,6 +35,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#FC895CAbility 2: Volcanic Eruption"));
         lore.add(Util.parseHexColors("&#FC895CJump 50 blocks in the air, leaving fire behind"));
         lore.add(Util.parseHexColors("&#FC895CCooldown: 30 sec"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#9D0101When in the nether some abilities a&#9D0101re enhanced"));
 
         fireMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "fire");
@@ -63,6 +65,9 @@ public class Items {
         lore.add(Util.parseHexColors("&#5CFCDCAbility 2: Water Knockback"));
         lore.add(Util.parseHexColors("&#5CFCDCAny players around get knocked back 5 blocks away"));
         lore.add(Util.parseHexColors("&#5CFCDCCooldown: 1 min"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#0030FFWhen in an ocean some abilities are&#0030FF enhanced"));
+
 
         waterMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "water");
@@ -91,6 +96,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#546DFFAbility 2: Ice Dash"));
         lore.add(Util.parseHexColors("&#546DFFDash 5 blocks forward in the direction you are looking"));
         lore.add(Util.parseHexColors("&#546DFFCooldown: 20 sec"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#E0E6FFWhen in a snowy biome some abilities are enhanced"));
 
         iceMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "ice");
@@ -121,6 +128,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#8048CDGain Speed 3 for 20 sec and give Blindness"));
         lore.add(Util.parseHexColors("&#8048CDto all surrounding players for 10 sec"));
         lore.add(Util.parseHexColors("&#8048CDCooldown: 2 min"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#4D20A5When in the End some abilities are enhanced"));
 
         shadowMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "shadow");
@@ -135,15 +144,29 @@ public class Items {
         ItemMeta earthMeta = earth.getItemMeta();
         String display = Util.parseHexColors("&#128500&l&nE&#1A7900&l&na&#236E00&l&nr&#2B6200&l&nt&#335700&l&nh &#444000&l&nE&#4C3400&l&nl&#483105&l&ne&#442E0A&l&nm&#412B0F&l&ne&#3D2814&l&nn&#392519&l&nt");
         earthMeta.setDisplayName(display);
+
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add(ChatColor.RED + "Abilities:");
+        lore.add(Util.parseHexColors("&#9DBF39Passives: Permanent Haste 2"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#828318Ability 1: Hasty Attack Speed"));
+        lore.add(Util.parseHexColors("&#828318When activated have a much faster attack speed"));
+        lore.add(Util.parseHexColors("&#828318Duration: 10 sec"));
+        lore.add(Util.parseHexColors("&#828318Cooldown: 2 min"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#836618Ability 2: Hulk Jump"));
+        lore.add(Util.parseHexColors("&#836618Jump 50 blocks in the air taking no fall damage"));
+        lore.add(Util.parseHexColors("&#836618Cooldown: 30 sec"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#808080When in a mountain biome some abilities are enhanced"));
+
         earthMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "earth");
         earthMeta.setItemModel(model);
         earth.setItemMeta(earthMeta);
         return earth;
     }
+
 
     public static ItemStack nature() {
         ItemStack nature = new ItemStack(Material.PAPER);
@@ -167,6 +190,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#588326Anyone around the player will be fully healed"));
         lore.add(Util.parseHexColors("&#588326and receive full saturation."));
         lore.add(Util.parseHexColors("&#588326Cooldown: 1 min"));
+        lore.add("");
+        lore.add(Util.parseHexColors("&#45F867When in a flower or cherry biome some abilities are enhanced"));
 
         natureMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "nature");
@@ -196,6 +221,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#FC895CAbility 2: Sun’s Rays"));
         lore.add(Util.parseHexColors("&#FC895CHeal to max hp and gain 10 extra hearts"));
         lore.add(Util.parseHexColors("&#FC895CCooldown: 1 min"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#FFA500When the Sun is out some abilities are enhanced"));
 
         sunMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "sun");
@@ -224,6 +251,8 @@ public class Items {
         lore.add(Util.parseHexColors("&#E3E3E3Ability 2: Tornado Charge"));
         lore.add(Util.parseHexColors("&#E3E3E3Summons 5 flying wind charges at once wherever the player is looking."));
         lore.add(Util.parseHexColors("&#E3E3E3Cooldown: 30 sec"));
+        lore.add(" ");
+        lore.add(Util.parseHexColors("&#FFFFFFWhen in a mountain biome some abilities are enhanced"));
 
         windMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "wind");

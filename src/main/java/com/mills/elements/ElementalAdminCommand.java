@@ -15,11 +15,7 @@ public class ElementalAdminCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            UUID uuid = player.getUniqueId();
-            String henry = "82d3644d-e184-42db-97c8-a127ad6377e6";
-            String mills = "95b646ab-1d1c-4dbb-98fc-baa752362b0c";
-
-            if (uuid.toString().equals(henry) || uuid.toString().equals(mills)) {
+            if (player.hasPermission(Main.adminPerm)) {
 
                 if (args.length == 1) {
 
@@ -72,6 +68,8 @@ public class ElementalAdminCommand implements CommandExecutor {
 
                 }
 
+            } else {
+                player.sendMessage(Main.prefix + "you dont have permission to use this command!");
             }
 
         }

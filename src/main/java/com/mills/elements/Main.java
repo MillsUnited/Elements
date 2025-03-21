@@ -12,6 +12,7 @@ public final class Main extends JavaPlugin {
     public static String prefix = ChatColor.translateAlternateColorCodes('&', "&e&lElemental &r&8» &7");
     public static String teamsPrefix = ChatColor.translateAlternateColorCodes('&', "&e&lTeams &r&8» &7");
     private static Main instance;
+    public static String adminPerm = "elemental.admin";
 
     private TeamManager teamManager;
 

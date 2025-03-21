@@ -182,32 +182,35 @@ public class RegisterItems {
                                 if (target.isDead() || target.getHealth() <= 0) {
                                     continue;
                                 }
-                                if (!main.getTeamManager().isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                                    boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
-                                    double damageSetter = inNetherBiome ? 1.0 : 0.5;
-                                    int fireDuration = 100;
-                                    target.setFireTicks(fireDuration);
 
-                                    if (target.getHealth() <= damageSetter) {
-                                        target.setHealth(0);
-                                        target.damage(0, attacker);
+                                if (!target.hasPermission(Main.adminPerm)) {
+                                    if (!main.getTeamManager().isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                                        boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
+                                        double damageSetter = inNetherBiome ? 1.0 : 0.5;
+                                        int fireDuration = 100;
+                                        target.setFireTicks(fireDuration);
+
+                                        if (target.getHealth() <= damageSetter) {
+                                            target.setHealth(0);
+                                            target.damage(0, attacker);
+                                        } else {
+                                            target.setHealth(target.getHealth() - damageSetter);
+                                        }
+
+                                        Vector kbDirection = target.getLocation().toVector().subtract(attacker.getLocation().toVector()).normalize();
+
+                                        double horizontalStrength = 0.8; // Lower horizontal impact
+                                        double verticalBoost = 0.35; // Stronger upward motion
+
+                                        Vector kb = kbDirection.multiply(horizontalStrength);
+                                        kb.setY(verticalBoost); // Set strong upward force
+
+                                        target.setVelocity(kb);
+                                        target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0f, 1.0f);
+                                        attacker.playSound(attacker.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1.0f, 1.0f);
                                     } else {
-                                        target.setHealth(target.getHealth() - damageSetter);
+                                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                                     }
-
-                                    Vector kbDirection = target.getLocation().toVector().subtract(attacker.getLocation().toVector()).normalize();
-
-                                    double horizontalStrength = 0.8; // Lower horizontal impact
-                                    double verticalBoost = 0.35; // Stronger upward motion
-
-                                    Vector kb = kbDirection.multiply(horizontalStrength);
-                                    kb.setY(verticalBoost); // Set strong upward force
-
-                                    target.setVelocity(kb);
-                                    target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0f, 1.0f);
-                                    attacker.playSound(attacker.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1.0f, 1.0f);
-                                } else {
-                                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                                 }
                             }
                         }
@@ -279,17 +282,19 @@ public class RegisterItems {
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                    if (!PlayerMovementListener.isFrozen(target)) {
-                        PlayerMovementListener.addFrozenPlayer(target);
-                        target.sendMessage(Main.prefix + "You have been frozen by " + attacker.getName() + " for 5 seconds!");
+                if (!target.hasPermission(Main.adminPerm)) {
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        if (!PlayerMovementListener.isFrozen(target)) {
+                            PlayerMovementListener.addFrozenPlayer(target);
+                            target.sendMessage(Main.prefix + "You have been frozen by " + attacker.getName() + " for 5 seconds!");
+                        }
+                        target.playSound(target.getLocation(),Sound.BLOCK_CONDUIT_DEACTIVATE, 1.0F, 1.0F);
+                        affectedPlayers.add(target.getUniqueId());
+                        target.sendMessage(Main.prefix + "You have been given frozen effect by " + attacker.getName() + " for 30 seconds!");
+                        target.setFreezeTicks(Integer.MAX_VALUE);
+                    } else {
+                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                     }
-                    target.playSound(target.getLocation(),Sound.BLOCK_CONDUIT_DEACTIVATE, 1.0F, 1.0F);
-                    affectedPlayers.add(target.getUniqueId());
-                    target.sendMessage(Main.prefix + "You have been given frozen effect by " + attacker.getName() + " for 30 seconds!");
-                    target.setFreezeTicks(Integer.MAX_VALUE);
-                } else {
-                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                 }
             }
         }
@@ -361,19 +366,21 @@ public class RegisterItems {
         attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1.0F, 1.0F);
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                    boolean inWaterBiome = BuffedAbilityListener.waterElement(attacker);
-                    double forwardVelocity = inWaterBiome ? 6 : 2.5;
-                    double upVelocity = inWaterBiome ? 3 : 1;
+                if (!target.hasPermission(Main.adminPerm)) {
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        boolean inWaterBiome = BuffedAbilityListener.waterElement(attacker);
+                        double forwardVelocity = inWaterBiome ? 6 : 2.5;
+                        double upVelocity = inWaterBiome ? 3 : 1;
 
-                    Vector knockback = target.getLocation().toVector()
-                            .subtract(attacker.getLocation().toVector())
-                            .normalize()
-                            .multiply(forwardVelocity)
-                            .setY(upVelocity);
-                    target.setVelocity(knockback);
-                } else {
-                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                        Vector knockback = target.getLocation().toVector()
+                                .subtract(attacker.getLocation().toVector())
+                                .normalize()
+                                .multiply(forwardVelocity)
+                                .setY(upVelocity);
+                        target.setVelocity(knockback);
+                    } else {
+                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                    }
                 }
             }
         }
@@ -406,14 +413,16 @@ public class RegisterItems {
         attacker.playSound(attacker.getLocation(),Sound.ENTITY_WARDEN_ROAR, 1.0F, 1.0F);
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                    boolean inEndBiome = BuffedAbilityListener.shadowElement(attacker);
-                    int duration = inEndBiome ? 400 : 200;
+                if (!target.hasPermission(Main.adminPerm)) {
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        boolean inEndBiome = BuffedAbilityListener.shadowElement(attacker);
+                        int duration = inEndBiome ? 400 : 200;
 
-                    target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, true, false));
-                    target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.0f);
-                } else {
-                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, true, false));
+                        target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.0f);
+                    } else {
+                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                    }
                 }
             }
         }
@@ -447,54 +456,58 @@ public class RegisterItems {
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                    entities.add(target);
-                } else {
-                    attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                if (target.hasPermission(Main.adminPerm)) {
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        entities.add(target);
+                    } else {
+                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                    }
                 }
             }
         }
 
         for (Player target : entities) {
-            if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                Location targetLoc = target.getLocation();
-                Vector direction = targetLoc.toVector().subtract(attackerLoc.toVector());
-                direction.normalize();
-                direction.setY(10);
-                direction.multiply(5);
-                target.setVelocity(direction);
+            if (target.hasPermission(Main.adminPerm)) {
+                if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    Location targetLoc = target.getLocation();
+                    Vector direction = targetLoc.toVector().subtract(attackerLoc.toVector());
+                    direction.normalize();
+                    direction.setY(10);
+                    direction.multiply(5);
+                    target.setVelocity(direction);
 
-                if (!FallDamageListener.hasNoFallDamage(target)) {
-                    FallDamageListener.addNoFallDamage(target);
-                }
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Location belowPlayer = target.getLocation().clone().subtract(0, 1, 0);
-                        Block blockBelow = belowPlayer.getBlock();
-
-                        if (blockBelow.getType() != Material.AIR) {
-                            Location targetNewLoc = target.getLocation();
-                            target.setFallDistance(0);
-                            target.playSound(targetNewLoc, Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0f, 1.0f);
-                            boolean inEarthBiome = BuffedAbilityListener.earthElement(attacker);
-                            double damage = inEarthBiome ? 16.0 : 12.0;
-
-                            if (target.getHealth() <= damage) {
-                                target.setHealth(0);
-                                target.damage(0, attacker);
-                            } else {
-                                target.setHealth(target.getHealth() - damage);
-                            }
-
-                            Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
-                                FallDamageListener.removeNoFallDamage(target);
-                            }, 40L);
-                            this.cancel();
-                        }
+                    if (!FallDamageListener.hasNoFallDamage(target)) {
+                        FallDamageListener.addNoFallDamage(target);
                     }
-                }.runTaskTimer(Main.getInstance(), 5L, 2L);
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Location belowPlayer = target.getLocation().clone().subtract(0, 1, 0);
+                            Block blockBelow = belowPlayer.getBlock();
+
+                            if (blockBelow.getType() != Material.AIR) {
+                                Location targetNewLoc = target.getLocation();
+                                target.setFallDistance(0);
+                                target.playSound(targetNewLoc, Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0f, 1.0f);
+                                boolean inEarthBiome = BuffedAbilityListener.earthElement(attacker);
+                                double damage = inEarthBiome ? 16.0 : 12.0;
+
+                                if (target.getHealth() <= damage) {
+                                    target.setHealth(0);
+                                    target.damage(0, attacker);
+                                } else {
+                                    target.setHealth(target.getHealth() - damage);
+                                }
+
+                                Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+                                    FallDamageListener.removeNoFallDamage(target);
+                                }, 40L);
+                                this.cancel();
+                            }
+                        }
+                    }.runTaskTimer(Main.getInstance(), 5L, 2L);
+                }
             }
         }
     }
@@ -542,15 +555,17 @@ public class RegisterItems {
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
-                if (teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
-                    boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
-                    if (inNatureBiome) {
-                        target.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 1, true, false, true));
-                    }
+                if (!target.hasPermission(Main.adminPerm)) {
+                    if (teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        boolean inNatureBiome = BuffedAbilityListener.natureElement(attacker);
+                        if (inNatureBiome) {
+                            target.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 100, 1, true, false, true));
+                        }
 
-                    target.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
-                    target.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
-                    target.playSound(target.getLocation(), Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.0f);
+                        target.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20, 9, true, false, false));
+                        target.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 9, true, false, false));
+                        target.playSound(target.getLocation(), Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.0f);
+                    }
                 }
             }
         }
@@ -595,10 +610,12 @@ public class RegisterItems {
             Location checkLoc = eyeLoc.clone().add(direction.clone().multiply(i));
             for (Entity entity : attacker.getWorld().getNearbyEntities(checkLoc, 1, 1, 1)) {
                 if (!entity.equals(attacker) && entity instanceof Player && !entitiesInFront.contains(entity)) {
-                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), entity.getUniqueId())) {
-                        entitiesInFront.add(entity);
-                    } else {
-                        attacker.sendMessage(Main.prefix + entity.getName() + " is part of your team!");
+                    if (!entity.hasPermission(Main.adminPerm)) {
+                        if (!teamManager.isInSameTeam(attacker.getUniqueId(), entity.getUniqueId())) {
+                            entitiesInFront.add(entity);
+                        } else {
+                            attacker.sendMessage(Main.prefix + entity.getName() + " is part of your team!");
+                        }
                     }
                 }
             }

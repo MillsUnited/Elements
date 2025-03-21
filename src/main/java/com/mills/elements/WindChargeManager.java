@@ -44,21 +44,23 @@ public class WindChargeManager implements Listener {
                 Player target = (Player) event.getHitEntity();
                 Player attacker = (Player) hitCharge.getShooter();
                 if (attacker != null) {
-                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                    if (!target.hasPermission(Main.adminPerm)) {
+                        if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
 
-                        target.getWorld().strikeLightningEffect(target.getLocation());
+                            target.getWorld().strikeLightningEffect(target.getLocation());
 
-                        double damageSetter = 4.0;
-                        if (target.getHealth() <= damageSetter) {
-                            target.setHealth(0);
-                            target.damage(0, attacker);
+                            double damageSetter = 4.0;
+                            if (target.getHealth() <= damageSetter) {
+                                target.setHealth(0);
+                                target.damage(0, attacker);
+                            } else {
+                                target.setHealth(target.getHealth() - damageSetter);
+                            }
+
+                            spawnTrackingWindCharges(attacker, target);
                         } else {
-                            target.setHealth(target.getHealth() - damageSetter);
+                            attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                         }
-
-                        spawnTrackingWindCharges(attacker, target);
-                    } else {
-                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                     }
                 }
             }

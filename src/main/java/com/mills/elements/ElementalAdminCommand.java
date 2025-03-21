@@ -6,8 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 public class ElementalAdminCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -15,7 +13,10 @@ public class ElementalAdminCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            if (player.hasPermission(Main.adminPerm)) {
+            if (!player.hasPermission(Main.adminPerm)) {
+                player.sendMessage(Main.prefix + "you dont have permission to use this command!");
+                return false;
+            }
 
                 if (args.length == 1) {
 
@@ -66,12 +67,9 @@ public class ElementalAdminCommand implements CommandExecutor {
                         player.sendMessage(Main.prefix + "gave " + name);
                     }
 
+                } else {
+                    player.sendMessage(Main.prefix + "/elementaladmin <item>!");
                 }
-
-            } else {
-                player.sendMessage(Main.prefix + "you dont have permission to use this command!");
-            }
-
         }
 
         return false;

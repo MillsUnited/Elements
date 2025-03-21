@@ -44,7 +44,9 @@ public class WindChargeManager implements Listener {
                 Player target = (Player) event.getHitEntity();
                 Player attacker = (Player) hitCharge.getShooter();
                 if (attacker != null) {
-                    if (!target.hasPermission(Main.adminPerm)) {
+                    if (target.hasPermission(Main.adminPerm)) {
+                        return;
+                    }
                         if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
 
                             target.getWorld().strikeLightningEffect(target.getLocation());
@@ -61,7 +63,6 @@ public class WindChargeManager implements Listener {
                         } else {
                             attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
                         }
-                    }
                 }
             }
         }

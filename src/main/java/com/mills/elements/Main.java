@@ -15,12 +15,15 @@ public final class Main extends JavaPlugin {
     public static String adminPerm = "elemental.admin";
 
     private TeamManager teamManager;
+    private ItemCaps itemCaps;
 
     @Override
     public void onEnable() {
         instance = this;
 
         teamManager = new TeamManager(this.getDataFolder());
+        itemCaps = new ItemCaps();
+        itemCaps.startInventoryCheck();
 
         PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
@@ -30,6 +33,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);
         Bukkit.getPluginManager().registerEvents(new EnderpearlCooldown(), this);
+        Bukkit.getPluginManager().registerEvents(new ItemCaps(), this);
 
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());

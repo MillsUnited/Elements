@@ -100,7 +100,7 @@ public class Items {
         lore.add(Util.parseHexColors("&#E0E6FFWhen in a snowy biome some abilities are enhanced"));
 
         iceMeta.setLore(lore);
-        NamespacedKey model = new NamespacedKey("minecraft", "ice");
+        NamespacedKey model = new NamespacedKey("minecraft", "ice_element");
         iceMeta.setItemModel(model);
         ice.setItemMeta(iceMeta);
 

@@ -57,6 +57,18 @@ public class PassiveAbilityManager implements Listener {
                     }
                 }
 
+                ItemStack juggernautHelmet = player.getInventory().getHelmet();
+                ItemStack juggernautChestplate = player.getInventory().getChestplate();
+                ItemStack juggernautLeggings = player.getInventory().getLeggings();
+                ItemStack juggernautBoots = player.getInventory().getBoots();
+
+                if (isFullJuggernautArmor(juggernautHelmet, juggernautChestplate, juggernautLeggings, juggernautBoots)) {
+                    hasGlowing = true;
+
+                } else if (!isFullJuggernautArmor(juggernautHelmet, juggernautChestplate, juggernautLeggings, juggernautBoots)) {
+                    hasGlowing = false;
+                }
+
                 ItemStack helmet = player.getInventory().getHelmet();
                 if (helmet != null && helmet.isSimilar(Items.kingcrown())) {
                     hasHelmetItem = true;
@@ -83,7 +95,7 @@ public class PassiveAbilityManager implements Listener {
 
                 activeItems.put(uuid, currentItems);
             }
-        }, 0L, 1L);
+        }, 0L, 20L);
     }
 
     private void startJugernautCheck() {
@@ -197,26 +209,26 @@ public class PassiveAbilityManager implements Listener {
 
     private void applyAbility(Player player, ItemStack item) {
         if (item.isSimilar(Items.fire())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 2, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 60, 0, true, false));
         } else if (item.isSimilar(Items.water())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 2, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 60, 0, true, false));
         } else if (item.isSimilar(Items.shadow())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, true, false));
         } else if (item.isSimilar(Items.earth())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 2, 1, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 60, 1, true, false));
         } else if (item.isSimilar(Items.nature())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 2, 1, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 60, 1, true, false));
         } else if (item.isSimilar(Items.sun())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 2, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, true, false));
         } else if (item.isSimilar(Items.ice())) {
             if (isInIceBiome(player)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2, 1, true, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false));
             }
         } else if (item.isSimilar(Items.kingcrown())) {
             player.setHealthScale(40);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2, 0, true, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 2, 0, true, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 2, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 0, true, false));
         }
     }
 

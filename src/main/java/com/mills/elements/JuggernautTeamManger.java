@@ -39,7 +39,7 @@ public class JuggernautTeamManger {
         team.addEntry(player.getName());
 
         Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 2, 0, false, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0, false, false, false));
         }, 1L);
 
         player.setDisplayName(ChatColor.DARK_RED + player.getName());

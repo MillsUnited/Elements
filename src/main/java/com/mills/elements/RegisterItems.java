@@ -97,7 +97,7 @@ public class RegisterItems {
                     player.sendMessage(Main.prefix + "You have activated Hulk Smash!");
                     hulkSmash(player, 5);
 
-                }, 30000, Items.earth())
+                }, 120000, Items.earth())
         );
         ItemManager.registerItem("Nature Element", Items.nature(),
                 new LeftClickAbility("Nature’s Resistance", player -> {
@@ -133,7 +133,7 @@ public class RegisterItems {
                 new LeftClickAbility("Wind Crush", player -> {
 
                     player.sendMessage(Main.prefix + "You have activated Wind Crush!");
-                    windCrush(player);
+                    windCrush(player, 5.0);
 
                 }, 120000, Items.wind()),
 
@@ -500,6 +500,7 @@ public class RegisterItems {
                                 target.playSound(targetNewLoc, Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0f, 1.0f);
                                 boolean inEarthBiome = BuffedAbilityListener.earthElement(attacker);
                                 double damage = inEarthBiome ? 16.0 : 12.0;
+                                target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0F, 1.0F);
 
                                 if (target.getHealth() <= damage) {
                                     target.setHealth(0);
@@ -591,7 +592,6 @@ public class RegisterItems {
         int duration = inSun ? 500 : 400;
 
         attacker.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, duration, 2, true, false));
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 400, 2, true, false));
         SpiralEffect.startSpiralEffect(attacker, 252, 208, 92);
         attacker.playSound(attacker.getLocation(),Sound.BLOCK_BEACON_POWER_SELECT, 1.0F, 1.0F);
     }
@@ -606,58 +606,55 @@ public class RegisterItems {
         attacker.playSound(attacker.getLocation(),Sound.BLOCK_CONDUIT_ACTIVATE, 1.0F, 1.0F);
     }
 
-    private void windCrush(Player attacker) {
-        Location eyeLoc = attacker.getLocation();
-        Vector direction = eyeLoc.getDirection().normalize();
-        List<Entity> entitiesInFront = new ArrayList<>();
+    private void windCrush(Player attacker, double radius) {
+        List<Player> entities = new ArrayList<>();
 
         SpiralEffect.startSpiralEffect(attacker, 165, 165, 165);
-        attacker.playSound(attacker.getLocation(),Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0F, 1.0F);
+        attacker.playSound(attacker.getLocation(), Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1.0F, 1.0F);
 
-        for (double i = 1; i <= 5; i++) {
-            Location checkLoc = eyeLoc.clone().add(direction.clone().multiply(i));
-            for (Entity entity : attacker.getWorld().getNearbyEntities(checkLoc, 1, 1, 1)) {
-                if (!entity.equals(attacker) && entity instanceof Player && !entitiesInFront.contains(entity)) {
-                    if (entity.hasPermission(Main.adminPerm)) {
-                        return;
-                    }
-                        if (!teamManager.isInSameTeam(attacker.getUniqueId(), entity.getUniqueId())) {
-                            entitiesInFront.add(entity);
-                        } else {
-                            attacker.sendMessage(Main.prefix + entity.getName() + " is part of your team!");
-                        }
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            if (!target.equals(attacker) && target.getWorld().equals(attacker.getWorld()) && target.getLocation().distance(attacker.getLocation()) <= radius) {
+                if (target.hasPermission(Main.adminPerm)) {
+                    return;
                 }
+                    if (!teamManager.isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
+                        entities.add(target);
+                    } else {
+                        attacker.sendMessage(Main.prefix + target.getName() + " is part of your team!");
+                    }
             }
         }
 
-        for (Entity entity : entitiesInFront) {
-            entity.setVelocity(new Vector(0, 1.7, 0));
-            Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> entity.setVelocity(new Vector(0, -50, 0)), 20L);
+        // Do your ability logic for each valid entity
+        for (Player target : entities) {
+            target.setVelocity(new Vector(0, 1.7, 0));
+            Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> target.setVelocity(new Vector(0, -50, 0)), 20L);
 
-            if (!FallDamageListener.hasNoFallDamage((Player) entity)) {
-                FallDamageListener.addNoFallDamage((Player) entity);
+            if (!FallDamageListener.hasNoFallDamage(target)) {
+                FallDamageListener.addNoFallDamage(target);
             }
 
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Location belowPlayer = entity.getLocation().clone().subtract(0, 1, 0);
+                    Location belowPlayer = target.getLocation().clone().subtract(0, 1, 0);
                     Block blockBelow = belowPlayer.getBlock();
 
                     if (blockBelow.getType() != Material.AIR) {
-
-                        entity.setFallDistance(0);
+                        target.setFallDistance(0);
                         boolean inWind = BuffedAbilityListener.windElement(attacker);
                         double damage = inWind ? 14.0 : 12.0;
-                        if (((Player) entity).getHealth() <= damage) {
-                            ((Player) entity).setHealth(0);
-                            ((Player) entity).damage(0, attacker);
+                        target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0F, 1.0F);
+
+                        if (target.getHealth() <= damage) {
+                            target.setHealth(0);
+                            target.damage(0, attacker);
                         } else {
-                            ((Player) entity).setHealth(((Player) entity).getHealth() - damage);
+                            target.setHealth(target.getHealth() - damage);
                         }
 
                         Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
-                            FallDamageListener.removeNoFallDamage((Player) entity);
+                            FallDamageListener.removeNoFallDamage(target);
                         }, 40L);
                         this.cancel();
                     }

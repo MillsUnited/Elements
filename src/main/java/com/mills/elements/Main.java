@@ -29,11 +29,13 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WindChargeManager(this), this);
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new ItemDrop(), this);
+        Bukkit.getPluginManager().registerEvents(new EnderpearlCooldown(), this);
 
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());
         getCommand("team").setExecutor(new TeamCommand(this));
         getCommand("team").setTabCompleter(new TeamCommandTabComplete(this));
+        getCommand("string").setExecutor(new StringCommand());
 
         RegisterItems registerItems = new RegisterItems(Main.getInstance());
         registerItems.registerElementalItems();

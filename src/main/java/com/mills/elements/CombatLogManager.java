@@ -2,17 +2,19 @@ package com.mills.elements;
 
 import com.mills.elements.Discord.DiscordCombatlog;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CombatLogManager implements Listener {
 
@@ -59,6 +61,7 @@ public class CombatLogManager implements Listener {
             for (ItemStack item : player.getInventory().getContents()) {
                 if (item != null && item.getAmount() > 0) {
                     String itemName;
+
                     if (item.isSimilar(Items.fire())) {
                         itemName = "Fire Element";
                     } else if (item.isSimilar(Items.water())) {
@@ -75,14 +78,52 @@ public class CombatLogManager implements Listener {
                         itemName = "Sun Element";
                     } else if (item.isSimilar(Items.earth())) {
                         itemName = "Earth Element";
+                    } else if (item.getType() == Material.ENCHANTED_BOOK && item.hasItemMeta()) {
+
+                        ItemMeta meta = item.getItemMeta();
+                        if (meta instanceof EnchantmentStorageMeta bookMeta) {
+                            itemName = meta.hasDisplayName() ? meta.getDisplayName() : "Enchanted Book";
+
+                            if (!bookMeta.getStoredEnchants().isEmpty()) {
+                                String enchantString = bookMeta.getStoredEnchants().entrySet().stream()
+                                        .map(e2 -> Util.format(e2.getKey().getKey().getKey()) + " " + e2.getValue())
+                                        .collect(Collectors.joining(", "));
+                                itemName += " (" + enchantString + ")";
+                            }
+
+                            itemNames.add(item.getAmount() + "x " + itemName);
+                            continue;
+                        } else {
+                            itemName = "Enchanted Book";
+                        }
                     } else if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
                         itemName = item.getItemMeta().getDisplayName();
                     } else {
                         itemName = Util.format(item.getType().toString());
                     }
 
+                    if (item.hasItemMeta() && item.getItemMeta().hasEnchants()) {
+                        Map<Enchantment, Integer> enchants = item.getItemMeta().getEnchants();
+                        String enchantString = enchants.entrySet().stream()
+                                .map(e1 -> Util.format(e1.getKey().getKey().getKey()) + " " + e1.getValue())
+                                .collect(Collectors.joining(", "));
+                        itemName += " (" + enchantString + ")";
+                    }
+
                     itemNames.add(item.getAmount() + "x " + itemName);
                 }
+            }
+
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null && item.getType() == Material.TOTEM_OF_UNDYING) {
+                    player.getWorld().dropItem(player.getLocation(), item.clone());
+                    player.getInventory().remove(item);
+                }
+            }
+
+            ItemStack offhand = player.getInventory().getItemInOffHand();
+            if (offhand != null && offhand.getType() == Material.TOTEM_OF_UNDYING) {
+                player.getInventory().setItemInOffHand(null);
             }
 
             player.damage(1000.0);

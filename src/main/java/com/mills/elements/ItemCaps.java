@@ -15,7 +15,9 @@ public class ItemCaps implements Listener {
     private Map<Material, Integer> maxItems = new HashMap<>();
     private String prefix = ChatColor.translateAlternateColorCodes('&', "&6&lInventory &r&8» &7");
 
-    public ItemCaps() {
+    private CombatLogManager combatLogManager;
+
+    public ItemCaps(CombatLogManager combatLogManager) {
         maxItems.put(Material.ENDER_PEARL, 8);
         maxItems.put(Material.BREEZE_ROD, 64);
         maxItems.put(Material.WIND_CHARGE, 64);
@@ -24,6 +26,8 @@ public class ItemCaps implements Listener {
         maxItems.put(Material.ENCHANTED_GOLDEN_APPLE, 3);
         maxItems.put(Material.COBWEB, 128);
         maxItems.put(Material.TOTEM_OF_UNDYING, 2);
+
+        this.combatLogManager = combatLogManager;
     }
 
     public void startInventoryCheck() {

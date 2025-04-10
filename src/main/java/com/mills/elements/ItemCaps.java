@@ -12,12 +12,11 @@ import java.util.Map;
 
 public class ItemCaps implements Listener {
 
-    private Map<Material, Integer> maxItems = new HashMap<>();
-    private String prefix = ChatColor.translateAlternateColorCodes('&', "&6&lInventory &r&8» &7");
+    private static Map<Material, Integer> maxItems = new HashMap<>();
+    private static String prefix = ChatColor.translateAlternateColorCodes('&', "&6&lInventory &r&8» &7");
+    private static final Map<Player, BukkitRunnable> activeChecks = new HashMap<>();
 
-    private CombatLogManager combatLogManager;
-
-    public ItemCaps(CombatLogManager combatLogManager) {
+    public ItemCaps() {
         maxItems.put(Material.ENDER_PEARL, 8);
         maxItems.put(Material.BREEZE_ROD, 64);
         maxItems.put(Material.WIND_CHARGE, 64);
@@ -26,42 +25,45 @@ public class ItemCaps implements Listener {
         maxItems.put(Material.ENCHANTED_GOLDEN_APPLE, 3);
         maxItems.put(Material.COBWEB, 128);
         maxItems.put(Material.TOTEM_OF_UNDYING, 2);
-
-        this.combatLogManager = combatLogManager;
     }
 
-    public void startInventoryCheck() {
-        new BukkitRunnable() {
+    public static void startInventoryCheck(Player player) {
+        stopInventoryCheck(player);
+
+        BukkitRunnable task = new BukkitRunnable() {
             @Override
             public void run() {
-                for (Player player : Main.getInstance().getServer().getOnlinePlayers()) {
-                    checkInventory(player);
-                }
+                checkInventory(player);
             }
-        }.runTaskTimer(Main.getInstance(), 0, 10);
+        };
+        task.runTaskTimer(Main.getInstance(), 0, 10);
+        activeChecks.put(player, task);
     }
 
-    // Check the player's inventory for item limits
-    private void checkInventory(Player player) {
+    public static void stopInventoryCheck(Player player) {
+        BukkitRunnable task = activeChecks.remove(player);
+        if (task != null) {
+            task.cancel();
+        }
+    }
+
+    private static void checkInventory(Player player) {
         for (ItemStack item : player.getInventory()) {
             if (item != null && maxItems.containsKey(item.getType())) {
                 int maxAmount = maxItems.get(item.getType());
                 int currentAmount = 0;
 
-                // Count the amount of this item in the player's inventory
                 for (ItemStack stack : player.getInventory()) {
                     if (stack != null && stack.isSimilar(item)) {
                         currentAmount += stack.getAmount();
                     }
                 }
 
-                // If the player exceeds the max amount, handle the overflow
                 if (currentAmount > maxAmount) {
                     String itemFormat = item.getType().toString().toLowerCase().replace('_', ' ');
                     player.sendMessage(prefix + "You cannot have more than " +
                             ChatColor.RED + maxAmount + ChatColor.GRAY + " of " + ChatColor.RED + itemFormat + ChatColor.GRAY + " in your inventory at once!");
 
-                    // Calculate how many excess items there are
                     int excessAmount = currentAmount - maxAmount;
                     dropExcessItems(player, item, excessAmount);
                 }
@@ -69,13 +71,10 @@ public class ItemCaps implements Listener {
         }
     }
 
-    // Drop excess items on the ground
-    private void dropExcessItems(Player player, ItemStack item, int excessAmount) {
-        // Make a new item stack with the excess amount
+    private static void dropExcessItems(Player player, ItemStack item, int excessAmount) {
         ItemStack excessItem = new ItemStack(item);
         excessItem.setAmount(excessAmount);
 
-        // Drop the excess items at the player's location
         player.getWorld().dropItemNaturally(player.getLocation(), excessItem);
         player.getInventory().removeItem(excessItem);
     }

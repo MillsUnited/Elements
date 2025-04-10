@@ -9,17 +9,21 @@ import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.Iterator;
+import java.util.Set;
 
 public class CraftingRecipeHandler {
 
     public static void recipeChanger() {
-        // === removal default Golden Apple Recipe ===
+        // === removal of Recipes ===
+        Set<Material> contraband = Set.of(
+                Material.GOLDEN_APPLE
+        );
         Iterator<Recipe> it = Bukkit.recipeIterator();
         while (it.hasNext()) {
-            Recipe oldGoldenApple = it.next();
-            if (oldGoldenApple instanceof ShapedRecipe) {
-                ItemStack result = oldGoldenApple.getResult();
-                if (result.getType() == Material.GOLDEN_APPLE) {
+            Recipe recipe = it.next();
+            if (recipe instanceof ShapedRecipe) {
+                ItemStack result = recipe.getResult();
+                if (contraband.contains(result.getType())) {
                     it.remove();
                 }
             }
@@ -65,6 +69,8 @@ public class CraftingRecipeHandler {
         cobwebRecipe.setIngredient('S', Material.STRING);
         cobwebRecipe.setIngredient('B', Material.SLIME_BALL);
         Bukkit.addRecipe(cobwebRecipe);
+
+
     }
 
 }

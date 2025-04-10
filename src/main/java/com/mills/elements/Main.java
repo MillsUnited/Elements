@@ -1,6 +1,5 @@
 package com.mills.elements;
 
-import com.mills.elements.Discord.DiscordCombatlog;
 import com.mills.elements.Discord.DiscordManager;
 import com.mills.elements.Discord.DiscordVulcan;
 import com.mills.elements.Teams.TeamCommand;
@@ -20,21 +19,18 @@ public final class Main extends JavaPlugin implements Listener {
     public static String adminPerm = "elemental.admin";
 
     private TeamManager teamManager;
-    private ItemCaps itemCaps;
     private CombatLogManager combatLogManager;
     private JDA bot;
-    private DiscordCombatlog discordCombatlog;
 
     @Override
     public void onEnable() {
         bot = DiscordManager.startBot();
 
         instance = this;
+        combatLogManager = new CombatLogManager(bot);
+        combatLogManager.startCooldownChecker();
 
-        discordCombatlog = new DiscordCombatlog(bot);
         teamManager = new TeamManager(this.getDataFolder());
-        itemCaps = new ItemCaps(combatLogManager);
-        itemCaps.startInventoryCheck();
 
         PassiveAbilityManager passiveAbilityManager = new PassiveAbilityManager(this);
         getServer().getPluginManager().registerEvents(passiveAbilityManager, this);
@@ -43,15 +39,19 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new WindChargeManager(this), this);
         Bukkit.getPluginManager().registerEvents(new AbilityInteractManager(), this);
         Bukkit.getPluginManager().registerEvents(new EnderpearlCooldown(), this);
-        Bukkit.getPluginManager().registerEvents(new ItemCaps(combatLogManager), this);
-        Bukkit.getPluginManager().registerEvents(new CombatLogManager(discordCombatlog), this);
+        Bukkit.getPluginManager().registerEvents(new ItemCaps(), this);
+        Bukkit.getPluginManager().registerEvents(combatLogManager, this);
         Bukkit.getPluginManager().registerEvents(new DiscordVulcan(bot), this);
+        Bukkit.getPluginManager().registerEvents(new AntiFireAspectBook(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerSkullHandler(), this);
+        Bukkit.getPluginManager().registerEvents(new SmithingBlocker(), this);
 
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());
         getCommand("team").setExecutor(new TeamCommand(this));
         getCommand("team").setTabCompleter(new TeamCommandTabComplete(this));
         getCommand("string").setExecutor(new StringCommand());
+        getCommand("skull").setExecutor(new SkullCommand());
 
         RegisterItems registerItems = new RegisterItems(Main.getInstance());
         registerItems.registerElementalItems();
@@ -75,5 +75,4 @@ public final class Main extends JavaPlugin implements Listener {
     public static Main getInstance() {
         return instance;
     }
-
 }

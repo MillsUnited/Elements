@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -34,7 +35,7 @@ public class PassiveAbilityManager implements Listener {
         startJugernautCheck();
     }
 
-    public void startInventoryCheck() {
+    private void startInventoryCheck() {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 UUID uuid = player.getUniqueId();
@@ -46,10 +47,11 @@ public class PassiveAbilityManager implements Listener {
                 for (ItemStack item : player.getInventory().getContents()) {
                     if (item == null) continue;
 
-                    if (isElementalItem(item) && !item.isSimilar(Items.kingcrown())) {
+                    if (isElementalItem(item)) {
                         currentItems.add(item);
 
-                        if (item.isSimilar(Items.wind())) {
+                        String type = getElementalType(item);
+                        if ("wind".equals(type)) {
                             hasWindItem = true;
                         }
 
@@ -64,13 +66,14 @@ public class PassiveAbilityManager implements Listener {
 
                 if (isFullJuggernautArmor(juggernautHelmet, juggernautChestplate, juggernautLeggings, juggernautBoots)) {
                     hasGlowing = true;
-
-                } else if (!isFullJuggernautArmor(juggernautHelmet, juggernautChestplate, juggernautLeggings, juggernautBoots)) {
-                    hasGlowing = false;
+                    hasHelmetItem = true;
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0, true, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 0, true, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 0, true, false));
                 }
 
                 ItemStack helmet = player.getInventory().getHelmet();
-                if (helmet != null && helmet.isSimilar(Items.kingcrown())) {
+                if (helmet != null && isElementalItem(helmet) && "king".equals(getElementalType(helmet))) {
                     hasHelmetItem = true;
                     applyAbility(player, helmet);
                 }
@@ -83,7 +86,7 @@ public class PassiveAbilityManager implements Listener {
 
                 if (hasGlowing) {
                     JuggernautTeamManger.addTeam(player);
-                } else if (!hasGlowing) {
+                } else {
                     JuggernautTeamManger.removeTeam(player);
                 }
 
@@ -119,7 +122,7 @@ public class PassiveAbilityManager implements Listener {
                     }
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 0 ,1);
+        }.runTaskTimer(Main.getInstance(), 0 ,20);
     }
 
     private void startCoordinateBroadcast(Player player) {
@@ -163,19 +166,6 @@ public class PassiveAbilityManager implements Listener {
         }
     }
 
-    private boolean isElementalItem(ItemStack item) {
-        if (item == null) return false;
-        return (item.isSimilar(Items.fire()) ||
-                (item.isSimilar(Items.water())) ||
-                (item.isSimilar(Items.shadow())) ||
-                (item.isSimilar(Items.earth())) ||
-                (item.isSimilar(Items.nature())) ||
-                (item.isSimilar(Items.sun())) ||
-                (item.isSimilar(Items.ice())) ||
-                (item.isSimilar(Items.wind())) ||
-                (item.isSimilar(Items.kingcrown())));
-    }
-
     private boolean isFullJuggernautArmor(ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots) {
         return isJuggernautHelmet(helmet) && isJuggernautChestplate(chestplate) && isJuggernautLeggings(leggings) && isJuggernautBoots(boots);
     }
@@ -196,39 +186,61 @@ public class PassiveAbilityManager implements Listener {
         return isSameItem(item, Items.juggernautBoots());
     }
 
-    private boolean isSameItem(ItemStack item, ItemStack reference) {
-        if (item == null || reference == null) return false;
-        if (item.getType() != reference.getType()) return false;
-
+    private boolean isElementalItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        ItemMeta refMeta = reference.getItemMeta();
-        if (meta == null || refMeta == null) return false;
+        return meta.getPersistentDataContainer().has(Items.getElementalKey(), PersistentDataType.STRING);
+    }
 
-        return meta.hasDisplayName() && refMeta.hasDisplayName() && meta.getDisplayName().equals(refMeta.getDisplayName());
+    private String getElementalType(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return null;
+        ItemMeta meta = item.getItemMeta();
+        return meta.getPersistentDataContainer().get(Items.getElementalKey(), PersistentDataType.STRING);
+    }
+
+    private boolean isSameItem(ItemStack a, ItemStack b) {
+        if (a == null || b == null) return false;
+        if (a.getType() != b.getType()) return false;
+        ItemMeta metaA = a.getItemMeta();
+        ItemMeta metaB = b.getItemMeta();
+        if (metaA == null || metaB == null) return false;
+        return metaA.hasDisplayName() && metaB.hasDisplayName() && metaA.getDisplayName().equals(metaB.getDisplayName());
     }
 
     private void applyAbility(Player player, ItemStack item) {
-        if (item.isSimilar(Items.fire())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 60, 0, true, false));
-        } else if (item.isSimilar(Items.water())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 60, 0, true, false));
-        } else if (item.isSimilar(Items.shadow())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, true, false));
-        } else if (item.isSimilar(Items.earth())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 60, 1, true, false));
-        } else if (item.isSimilar(Items.nature())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 60, 1, true, false));
-        } else if (item.isSimilar(Items.sun())) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, true, false));
-        } else if (item.isSimilar(Items.ice())) {
-            if (isInIceBiome(player)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false));
-            }
-        } else if (item.isSimilar(Items.kingcrown())) {
-            player.setHealthScale(40);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 0, true, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0, true, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 0, true, false));
+        String type = getElementalType(item);
+        if (type == null) return;
+
+        switch (type) {
+            case "fire":
+                player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 60, 0, true, false));
+                break;
+            case "water":
+                player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 60, 0, true, false));
+                break;
+            case "shadow":
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, true, false));
+                break;
+            case "earth":
+                player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 60, 1, true, false));
+                break;
+            case "nature":
+                player.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 60, 1, true, false));
+                break;
+            case "sun":
+                player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 240, 0, true, false));
+                break;
+            case "ice":
+                if (isInIceBiome(player)) {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false));
+                }
+                break;
+            case "king":
+                player.setHealthScale(40);
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 0, true, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, 0, true, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 0, true, false));
+                break;
         }
     }
 

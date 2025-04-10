@@ -1,10 +1,8 @@
 package com.mills.elements;
 
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,11 +23,14 @@ public class EnderpearlCooldown implements Listener {
         Player player = e.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        ItemStack item = player.getInventory().getItemInMainHand();
+        if (!e.getAction().isRightClick()) return;
 
-        if (item.getType() == Material.ENDER_PEARL) {
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+
+        if (mainHand.getType() == Material.ENDER_PEARL || offHand.getType() == Material.ENDER_PEARL) {
             if (isOnCooldown(uuid)) {
-                e.setCancelled(true); // Prevent using pearl
+                e.setCancelled(true);
                 return;
             }
 

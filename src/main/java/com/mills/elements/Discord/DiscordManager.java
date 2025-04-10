@@ -13,7 +13,7 @@ public class DiscordManager {
 
     public static JDA startBot() {
         try {
-            bot = JDABuilder.createDefault("MTM1NDkyMDUyMTcyMDAwNDc5OQ.GPi7Yt.hnbLP7ylOMdIsTHCeRq5sRjdz-Cx5DraQmPfbY")
+            bot = JDABuilder.createDefault("MTM1NDkyMDUyMTcyMDAwNDc5OQ.GDGyxU.Dw_uS89L-3KT1Y0kmJuao7ugSDLUlo0boMX1Vs")
                     .build();
 
             bot.awaitReady();

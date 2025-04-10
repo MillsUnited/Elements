@@ -60,11 +60,12 @@ public class EmbededMessages {
         return embed;
     }
 
-    public static EmbedBuilder combatLog(String playerName, String leaveReason, List<String> items) {
+    public static EmbedBuilder combatLog(String playerName, String leaveReason, Double timeLeft, List<String> items) {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Combat Log")
                 .addField("**Player:**", playerName, false)
                 .addField("**Quit Reason:**", leaveReason, false)
+                .addField("**Time Remaining:**", timeLeft.toString() + "s", false)
                 .setColor(Color.decode(hexColor))
                 .setFooter("Fragged " + getTimestamp());
 
@@ -75,6 +76,16 @@ public class EmbededMessages {
 
             embed.addField("**Inventory Items:**", formattedItems, false);
         }
+        return embed;
+    }
+
+    public static EmbedBuilder lastLogin(String playerName, String logoutTime) {
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Combat Log")
+                .addField("**Player:**", playerName, false)
+                .addField("**Logout time:**", logoutTime, false)
+                .setColor(Color.decode(hexColor))
+                .setFooter("Logged in at " + getTimestamp());
         return embed;
     }
 

@@ -10,11 +10,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Items {
+
+    private static final NamespacedKey ELEMENTAL_KEY = new NamespacedKey(Main.getInstance(), "elemental");
+
+    public static NamespacedKey getElementalKey() {
+        return ELEMENTAL_KEY;
+    }
+
+    private static void markElemental(ItemMeta meta, String type) {
+        meta.getPersistentDataContainer().set(ELEMENTAL_KEY, PersistentDataType.STRING, type);
+    }
 
     public static ItemStack fire() {
         ItemStack fire = new ItemStack(Material.PAPER);
@@ -40,6 +51,7 @@ public class Items {
 
         fireMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "fire");
+        markElemental(fireMeta, "fire");
         fireMeta.setItemModel(model);
         fire.setItemMeta(fireMeta);
 
@@ -71,6 +83,7 @@ public class Items {
 
         waterMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "water");
+        markElemental(waterMeta, "water");
         waterMeta.setItemModel(model);
         water.setItemMeta(waterMeta);
 
@@ -101,6 +114,7 @@ public class Items {
 
         iceMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "ice_element");
+        markElemental(iceMeta, "ice");
         iceMeta.setItemModel(model);
         ice.setItemMeta(iceMeta);
 
@@ -133,6 +147,7 @@ public class Items {
 
         shadowMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "shadow");
+        markElemental(shadowMeta, "shadow");
         shadowMeta.setItemModel(model);
         shadow.setItemMeta(shadowMeta);
 
@@ -163,6 +178,7 @@ public class Items {
 
         earthMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "earth");
+        markElemental(earthMeta, "earth");
         earthMeta.setItemModel(model);
         earth.setItemMeta(earthMeta);
         return earth;
@@ -196,6 +212,7 @@ public class Items {
 
         natureMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "nature");
+        markElemental(natureMeta, "nature");
         natureMeta.setItemModel(model);
         nature.setItemMeta(natureMeta);
 
@@ -227,6 +244,7 @@ public class Items {
 
         sunMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "sun");
+        markElemental(sunMeta, "sun");
         sunMeta.setItemModel(model);
         sun.setItemMeta(sunMeta);
 
@@ -258,6 +276,7 @@ public class Items {
 
         windMeta.setLore(lore);
         NamespacedKey model = new NamespacedKey("minecraft", "wind");
+        markElemental(windMeta, "wind");
         windMeta.setItemModel(model);
         wind.setItemMeta(windMeta);
 
@@ -277,6 +296,7 @@ public class Items {
             armorMeta.setTrim(trim);
             crown.setItemMeta(armorMeta);
         }
+        markElemental(crownMeta, "king");
         crown.setItemMeta(crownMeta);
         return crown;
     }
@@ -284,10 +304,13 @@ public class Items {
     public static ItemStack juggernautHelmet() {
         ItemStack juggernautHelmet = new ItemStack(Material.NETHERITE_HELMET);
         ItemMeta juggernautHelmetMeta = juggernautHelmet.getItemMeta();
-        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1212&l&nu&#FB1D1D&l&ng&#FB2727&l&ng&#FC3131&l&ne&#FC3C3C&l&nr&#FC4646&l&nn&#FC5050&l&na&#FC5B5B&l&nu&#FC6565&l&nt &#FC7979&l&nH&#FD8484&l&ne&#FD8E8E&l&nl&#FD9898&l&nm&#FDA3A3&l&ne&#FDADAD&l&nt");
+        String display = Util.parseHexColors("&#B10000&l&nJu&#A30000&l&ngg&#950000&l&ner&#870000&l&nna&#790000&l&nut&#6B0000&l&n H&#5D0000&l&nel&#4F0000&l&nme&#4F0000&l&nt");
         juggernautHelmetMeta.setDisplayName(display);
-        juggernautHelmetMeta.addEnchant(Enchantment.PROTECTION, 4, true);
-        juggernautHelmetMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
+        juggernautHelmetMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautHelmetMeta.addEnchant(Enchantment.RESPIRATION, 5, true);
+        juggernautHelmetMeta.addEnchant(Enchantment.AQUA_AFFINITY, 1, true);
+        juggernautHelmetMeta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        juggernautHelmetMeta.setUnbreakable(true);
         juggernautHelmet.setItemMeta(juggernautHelmetMeta);
         return juggernautHelmet;
     }
@@ -295,10 +318,11 @@ public class Items {
     public static ItemStack juggernautChestplate() {
         ItemStack juggernautChestplate = new ItemStack(Material.NETHERITE_CHESTPLATE);
         ItemMeta juggernautChestplateMeta = juggernautChestplate.getItemMeta();
-        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1010&l&nu&#FB1919&l&ng&#FB2121&l&ng&#FB2929&l&ne&#FC3131&l&nr&#FC3A3A&l&nn&#FC4242&l&na&#FC4A4A&l&nu&#FC5252&l&nt &#FC6363&l&nC&#FC6B6B&l&nh&#FC7373&l&ne&#FC7C7C&l&ns&#FD8484&l&nt&#FD8C8C&l&np&#FD9494&l&nl&#FD9D9D&l&na&#FDA5A5&l&nt&#FDADAD&l&ne");
+        String display = Util.parseHexColors("&#B10000&l&nJu&#A60000&l&ngg&#9B0000&l&ner&#8F0000&l&nna&#840000&l&nut&#790000&l&n C&#6E0000&l&nhe&#630000&l&nst&#570000&l&npl&#4C0000&l&nat&#4C0000&l&ne");
         juggernautChestplateMeta.setDisplayName(display);
-        juggernautChestplateMeta.addEnchant(Enchantment.PROTECTION, 4, true);
-        juggernautChestplateMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
+        juggernautChestplateMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautChestplateMeta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        juggernautChestplateMeta.setUnbreakable(true);
         juggernautChestplate.setItemMeta(juggernautChestplateMeta);
         return juggernautChestplate;
     }
@@ -306,10 +330,12 @@ public class Items {
     public static ItemStack juggernautLeggings() {
         ItemStack juggernautLeggings = new ItemStack(Material.NETHERITE_LEGGINGS);
         ItemMeta juggernautLeggingsMeta = juggernautLeggings.getItemMeta();
-        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1111&l&nu&#FB1A1A&l&ng&#FB2424&l&ng&#FB2D2D&l&ne&#FC3636&l&nr&#FC3F3F&l&nn&#FC4848&l&na&#FC5151&l&nu&#FC5B5B&l&nt &#FC6D6D&l&nL&#FC7676&l&ne&#FC7F7F&l&ng&#FD8888&l&ng&#FD9292&l&ni&#FD9B9B&l&nn&#FDA4A4&l&ng&#FDADAD&l&ns");
+        String display = Util.parseHexColors("&#B10000&l&nJu&#A50000&l&ngg&#980000&l&ner&#8C0000&l&nna&#7F0000&l&nut&#730000&l&n L&#660000&l&neg&#5A0000&l&ngi&#4D0000&l&nng&#4D0000&l&ns");
         juggernautLeggingsMeta.setDisplayName(display);
-        juggernautLeggingsMeta.addEnchant(Enchantment.PROTECTION, 4, true);
-        juggernautLeggingsMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
+        juggernautLeggingsMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautLeggingsMeta.addEnchant(Enchantment.SWIFT_SNEAK, 3, true);
+        juggernautLeggingsMeta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        juggernautLeggingsMeta.setUnbreakable(true);
         juggernautLeggings.setItemMeta(juggernautLeggingsMeta);
         return juggernautLeggings;
     }
@@ -317,11 +343,28 @@ public class Items {
     public static ItemStack juggernautBoots() {
         ItemStack juggernautBoots = new ItemStack(Material.NETHERITE_BOOTS);
         ItemMeta juggernautBootsMeta = juggernautBoots.getItemMeta();
-        String display = Util.parseHexColors("&#FB0808&l&nJ&#FB1313&l&nu&#FB1E1E&l&ng&#FB2929&l&ng&#FC3434&l&ne&#FC3F3F&l&nr&#FC4A4A&l&nn&#FC5555&l&na&#FC6060&l&nu&#FC6B6B&l&nt &#FC8181&l&nB&#FD8C8C&l&no&#FD9797&l&no&#FDA2A2&l&nt&#FDADAD&l&ns");
+        String display = Util.parseHexColors("&#B10000&l&nJu&#A10000&l&ngg&#910000&l&ner&#810000&l&nna&#710000&l&nut&#610000&l&n B&#510000&l&noo&#410000&l&nts");
         juggernautBootsMeta.setDisplayName(display);
-        juggernautBootsMeta.addEnchant(Enchantment.PROTECTION, 4, true);
-        juggernautBootsMeta.addEnchant(Enchantment.UNBREAKING, 3, true);
+        juggernautBootsMeta.addEnchant(Enchantment.PROTECTION, 5, true);
+        juggernautBootsMeta.addEnchant(Enchantment.FEATHER_FALLING, 5, true);
+        juggernautBootsMeta.addEnchant(Enchantment.DEPTH_STRIDER, 3, true);
+        juggernautBootsMeta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        juggernautBootsMeta.setUnbreakable(true);
         juggernautBoots.setItemMeta(juggernautBootsMeta);
         return juggernautBoots;
+    }
+
+    public static ItemStack juggernautSword() {
+        ItemStack juggernautSword = new ItemStack(Material.NETHERITE_SWORD);
+        ItemMeta juggernautSwordMeta = juggernautSword.getItemMeta();
+        String display = Util.parseHexColors("&#B10000&l&nJu&#A10000&l&ngg&#910000&l&ner&#810000&l&nna&#710000&l&nut&#610000&l&n S&#510000&l&nwo&#410000&l&nrd");
+        juggernautSwordMeta.setDisplayName(display);
+        juggernautSwordMeta.addEnchant(Enchantment.SHARPNESS, 6, true);
+        juggernautSwordMeta.addEnchant(Enchantment.FIRE_ASPECT, 2, true);
+        juggernautSwordMeta.addEnchant(Enchantment.SWEEPING_EDGE, 3, true);
+        juggernautSwordMeta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        juggernautSwordMeta.setUnbreakable(true);
+        juggernautSword.setItemMeta(juggernautSwordMeta);
+        return juggernautSword;
     }
 }

@@ -3,6 +3,7 @@ package com.mills.elements;
 import com.mills.elements.Discord.EmbededMessages;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ public class CombatLogManager implements Listener {
     private JDA bot;
 
     private final HashMap<UUID, Long> cooldown = new HashMap<>();
+    private static String prefix = ChatColor.translateAlternateColorCodes('&', "&6&lCombat &r&8» &7");
     private final Map<UUID, Long> logoutTimes = new HashMap<>();
     private final long cooldownTime = 180000;
 
@@ -38,8 +40,17 @@ public class CombatLogManager implements Listener {
             Player attacker = (Player) e.getDamager();
             Player victim = (Player) e.getEntity();
 
+            if (!isOnCooldown(attacker.getUniqueId())) {
+                attacker.sendMessage(prefix + "You have entered combat with " + ChatColor.RED + victim.getName() + ChatColor.GRAY + " for 3 minutes, please do not logout!");
+            }
+
+            if (!isOnCooldown(victim.getUniqueId())) {
+                victim.sendMessage(prefix + "You have entered combat with " + ChatColor.RED + attacker.getName() + ChatColor.GRAY + " for 3 minutes, please do not logout!");
+            }
+
             setCooldown(attacker.getUniqueId());
             setCooldown(victim.getUniqueId());
+
             ItemCaps.startInventoryCheck(attacker);
             ItemCaps.startInventoryCheck(victim);
         }
@@ -111,9 +122,11 @@ public class CombatLogManager implements Listener {
 
             logoutTimes.put(uuid, System.currentTimeMillis());
 
+            String formattedReason = reason.toString().substring(0,1).toUpperCase() + reason.toString().substring(1).toLowerCase();
+
             TextChannel channel = bot.getTextChannelById("1355602995752210591");
             if (channel != null) {
-                channel.sendMessageEmbeds(EmbededMessages.combatLog(player.getName(), reason.toString(), timeRemaining, itemNames).build()).queue();
+                channel.sendMessageEmbeds(EmbededMessages.combatLog(player.getName(), formattedReason, timeRemaining, itemNames).build()).queue();
             }
         }
     }
@@ -150,6 +163,7 @@ public class CombatLogManager implements Listener {
                         Player player = org.bukkit.Bukkit.getPlayer(uuid);
                         if (player != null && player.isOnline()) {
                             ItemCaps.stopInventoryCheck(player);
+                            player.sendMessage(prefix + "your combat timer has ended!");
                         }
                         finished.add(uuid);
                     }

@@ -23,8 +23,10 @@ public class ItemCaps implements Listener {
         maxItems.put(Material.EXPERIENCE_BOTTLE, 192);
         maxItems.put(Material.GOLDEN_APPLE, 128);
         maxItems.put(Material.ENCHANTED_GOLDEN_APPLE, 3);
-        maxItems.put(Material.COBWEB, 128);
+        maxItems.put(Material.COBWEB, 64);
         maxItems.put(Material.TOTEM_OF_UNDYING, 2);
+        maxItems.put(Material.GOLDEN_CARROT, 64);
+        maxItems.put(Material.BUCKET, 16);
     }
 
     public static void startInventoryCheck(Player player) {

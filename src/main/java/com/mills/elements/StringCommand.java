@@ -16,7 +16,7 @@ import java.util.UUID;
 public class StringCommand implements CommandExecutor {
 
     private HashMap<UUID, Long> cooldown = new HashMap<>();
-    private final long cooldownTime = 10000;
+    private final long cooldownTime = 60000;
     private final String prefix = ChatColor.translateAlternateColorCodes('&', "&6&lString &r&8» &7");
 
     @Override

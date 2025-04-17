@@ -45,13 +45,14 @@ public final class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new AntiFireAspectBook(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerSkullHandler(), this);
         Bukkit.getPluginManager().registerEvents(new SmithingBlocker(), this);
+        Bukkit.getPluginManager().registerEvents(new ChatManager(), this);
 
         getCommand("elementaladmin").setExecutor(new ElementalAdminCommand());
         getCommand("elementaladmin").setTabCompleter(new ElementalAdminTabComplete());
         getCommand("team").setExecutor(new TeamCommand(this));
         getCommand("team").setTabCompleter(new TeamCommandTabComplete(this));
-        getCommand("string").setExecutor(new StringCommand());
         getCommand("skull").setExecutor(new SkullCommand());
+        getCommand("string").setExecutor(new StringCommand());
 
         RegisterItems registerItems = new RegisterItems(Main.getInstance());
         registerItems.registerElementalItems();

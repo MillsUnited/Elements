@@ -3,6 +3,8 @@ package com.mills.elements;
 import com.mills.elements.Teams.TeamManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -189,14 +191,25 @@ public class RegisterItems {
 
                                     if (!main.getTeamManager().isInSameTeam(attacker.getUniqueId(), target.getUniqueId())) {
                                         boolean inNetherBiome = BuffedAbilityListener.fireElement(attacker);
-                                        double damageSetter = inNetherBiome ? 1.0 : 0.5;
+                                        double damageSetter = inNetherBiome ? 0.5 : 0.25;
                                         int fireDuration = 100;
                                         target.setFireTicks(fireDuration);
 
-                                        if (target.getHealth() <= damageSetter) {
-                                            target.setHealth(0);
-                                            target.damage(0, attacker);
+                                        if (target.getHealth() + target.getAbsorptionAmount() <= damageSetter) {
+                                            target.damage(75, attacker);
                                         } else {
+                                            if (target.getAbsorptionAmount() > 0) {
+                                                double absorption = target.getAbsorptionAmount();
+
+                                                if (damageSetter <= absorption) {
+                                                    target.setAbsorptionAmount(absorption - damageSetter);
+                                                    damageSetter = 0;
+                                                } else {
+                                                    target.setAbsorptionAmount(0);
+                                                    damageSetter -= absorption;
+                                                }
+                                            }
+
                                             target.setHealth(target.getHealth() - damageSetter);
                                         }
 
@@ -224,6 +237,7 @@ public class RegisterItems {
         SpiralEffect.startSpiralEffect(attacker, 252, 208, 92);
         attacker.playSound(attacker.getLocation(),Sound.ITEM_FIRECHARGE_USE, 1.0F, 1.0F);
     }
+
 
     private void volcanicEruption(Player attacker) {
         Location originalLocation = attacker.getLocation();
@@ -502,10 +516,21 @@ public class RegisterItems {
                                 double damage = inEarthBiome ? 16.0 : 12.0;
                                 target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0F, 1.0F);
 
-                                if (target.getHealth() <= damage) {
-                                    target.setHealth(0);
-                                    target.damage(0, attacker);
+                                if (target.getHealth() + target.getAbsorptionAmount() <= damage) {
+                                    target.damage(75, attacker);
                                 } else {
+                                    if (target.getAbsorptionAmount() > 0) {
+                                        double absorption = target.getAbsorptionAmount();
+
+                                        if (damage <= absorption) {
+                                            target.setAbsorptionAmount(absorption - damage);
+                                            damage = 0;
+                                        } else {
+                                            target.setAbsorptionAmount(0);
+                                            damage -= absorption;
+                                        }
+                                    }
+
                                     target.setHealth(target.getHealth() - damage);
                                 }
 
@@ -646,10 +671,21 @@ public class RegisterItems {
                         double damage = inWind ? 14.0 : 12.0;
                         target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0F, 1.0F);
 
-                        if (target.getHealth() <= damage) {
-                            target.setHealth(0);
-                            target.damage(0, attacker);
+                        if (target.getHealth() + target.getAbsorptionAmount() <= damage) {
+                            target.damage(75, attacker);
                         } else {
+                            if (target.getAbsorptionAmount() > 0) {
+                                double absorption = target.getAbsorptionAmount();
+
+                                if (damage <= absorption) {
+                                    target.setAbsorptionAmount(absorption - damage);
+                                    damage = 0;
+                                } else {
+                                    target.setAbsorptionAmount(0);
+                                    damage -= absorption;
+                                }
+                            }
+
                             target.setHealth(target.getHealth() - damage);
                         }
 

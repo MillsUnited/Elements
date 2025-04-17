@@ -56,7 +56,7 @@ public class EmbededMessages {
                 .addField("**Player:**", playerName, false)
                 .addField("**Flag:**", flag, false)
                 .setColor(Color.decode(hexColor))
-                .setFooter("Fragged " + getTimestamp());
+                .setFooter("Flagged " + getTimestamp());
         return embed;
     }
 
@@ -67,7 +67,7 @@ public class EmbededMessages {
                 .addField("**Quit Reason:**", leaveReason, false)
                 .addField("**Time Remaining:**", timeLeft.toString() + "s", false)
                 .setColor(Color.decode(hexColor))
-                .setFooter("Fragged " + getTimestamp());
+                .setFooter("Flagged " + getTimestamp());
 
         if (!items.isEmpty()) {
             String formattedItems = items.stream()

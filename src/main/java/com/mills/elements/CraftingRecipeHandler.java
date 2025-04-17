@@ -16,7 +16,8 @@ public class CraftingRecipeHandler {
     public static void recipeChanger() {
         // === removal of Recipes ===
         Set<Material> contraband = Set.of(
-                Material.GOLDEN_APPLE
+                Material.GOLDEN_APPLE,
+                Material.MACE
         );
         Iterator<Recipe> it = Bukkit.recipeIterator();
         while (it.hasNext()) {
@@ -63,14 +64,26 @@ public class CraftingRecipeHandler {
         ShapedRecipe cobwebRecipe = new ShapedRecipe(cobwebKey, cobweb);
         cobwebRecipe.shape(
                 "SSS",
-                "SBS",
+                "SSS",
                 "SSS"
         );
         cobwebRecipe.setIngredient('S', Material.STRING);
-        cobwebRecipe.setIngredient('B', Material.SLIME_BALL);
         Bukkit.addRecipe(cobwebRecipe);
 
-
+        // === Shulker Recipe ===
+        ItemStack shulker = new ItemStack(Material.SHULKER_BOX);
+        NamespacedKey shulkerKey = new NamespacedKey(Main.getInstance(), "shulker_custom");
+        ShapedRecipe shulkerRecipe = new ShapedRecipe(shulkerKey, shulker);
+        shulkerRecipe.shape(
+                "AAA",
+                "SBS",
+                "CCC"
+        );
+        shulkerRecipe.setIngredient('A', Material.AMETHYST_BLOCK);
+        shulkerRecipe.setIngredient('S', Material.MAGENTA_BUNDLE);
+        shulkerRecipe.setIngredient('B', Material.ENDER_CHEST);
+        shulkerRecipe.setIngredient('C', Material.END_CRYSTAL);
+        Bukkit.addRecipe(shulkerRecipe);
     }
 
 }

@@ -52,10 +52,22 @@ public class WindChargeManager implements Listener {
                             target.getWorld().strikeLightningEffect(target.getLocation());
 
                             double damageSetter = 4.0;
-                            if (target.getHealth() <= damageSetter) {
-                                target.setHealth(0);
-                                target.damage(0, attacker);
+
+                            if (target.getHealth() + target.getAbsorptionAmount() <= damageSetter) {
+                                target.damage(75, attacker);
                             } else {
+                                if (target.getAbsorptionAmount() > 0) {
+                                    double absorption = target.getAbsorptionAmount();
+
+                                    if (damageSetter <= absorption) {
+                                        target.setAbsorptionAmount(absorption - damageSetter);
+                                        damageSetter = 0;
+                                    } else {
+                                        target.setAbsorptionAmount(0);
+                                        damageSetter -= absorption;
+                                    }
+                                }
+
                                 target.setHealth(target.getHealth() - damageSetter);
                             }
 

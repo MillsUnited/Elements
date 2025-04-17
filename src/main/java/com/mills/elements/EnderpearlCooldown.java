@@ -16,7 +16,7 @@ import java.util.UUID;
 public class EnderpearlCooldown implements Listener {
 
     private final HashMap<UUID, Long> cooldown = new HashMap<>();
-    private final long cooldownTime = 60000;
+    private final long cooldownTime = 15000;
 
     @EventHandler
     public void onEnderPearl(PlayerInteractEvent e) {

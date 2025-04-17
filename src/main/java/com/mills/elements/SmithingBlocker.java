@@ -30,6 +30,8 @@ public class SmithingBlocker implements Listener {
         return type == Material.NETHERITE_HELMET ||
                 type == Material.NETHERITE_CHESTPLATE ||
                 type == Material.NETHERITE_LEGGINGS ||
-                type == Material.NETHERITE_BOOTS;
+                type == Material.NETHERITE_BOOTS ||
+                type == Material.NETHERITE_SWORD ||
+                type == Material.NETHERITE_AXE;
     }
 }
